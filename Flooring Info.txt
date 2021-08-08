@@ -1,0 +1,48 @@
+The order file should contain a header row. Data rows will contain the following fields and should be in this order:
+
+    OrderNumber – Integer
+    CustomerName – String
+    State – String
+    TaxRate – BigDecimal
+    ProductType – String
+    Area – BigDecimal
+    CostPerSquareFoot – BigDecimal
+    LaborCostPerSquareFoot – BigDecimal
+    MaterialCost – BigDecimal
+    LaborCost – BigDecimal
+    Tax – BigDecimal
+    Total – BigDecimal
+
+Here is a sample line from an orders file:
+
+1,Ada Lovelace,CA,25.00,Tile,249.00,3.50,4.15,871.50,1033.35,476.21,2381.06
+
+Orders_06012013.txt is a sample file which is included in the sample download above.
+
+Some of the order fields are calculations:
+
+    MaterialCost = (Area * CostPerSquareFoot)
+    LaborCost = (Area * LaborCostPerSquareFoot)
+    Tax = (MaterialCost + LaborCost) * (TaxRate/100)
+        Tax rates are stored as whole numbers
+    Total = (MaterialCost + LaborCost + Tax)
+
+Tax File & Format
+
+The tax information can be found in Data/Taxes.txt. This file will contain the following fields:
+
+    StateAbbreviation – String
+    StateName – String
+    TaxRate – BigDecimal
+
+Here is a sample line from the taxes file:
+
+TX,Texas,4.45
+
+Products File & Format
+
+The current product information can be found in Data/Products.txt. It contains the following fields:
+
+    ProductType – String
+    CostPerSquareFoot – BigDecimal
+    LaborCostPerSquareFoot – BigDecimal
