@@ -26,6 +26,8 @@ public interface OrderDao {
     List<Order> getAllOrdersOnDate(LocalDate orderDate) throws NoOrdersOnDateException;
     
     Order addOrder(Order order);
+    Order createOrder(LocalDate orderDate, String customerName, StateTax stateTax, Product product,
+            BigDecimal area);
     Order createOrder(LocalDate orderDate, String customerName, StateTax stateTax, Product product, 
             BigDecimal area, BigDecimal materialCost, BigDecimal laborCost, 
             BigDecimal tax, BigDecimal total);

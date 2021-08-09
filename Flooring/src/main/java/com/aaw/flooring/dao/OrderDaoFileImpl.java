@@ -103,6 +103,12 @@ public class OrderDaoFileImpl implements OrderDao {
         return order;
     }
     
+    @Override
+    public Order createOrder(LocalDate orderDate, String customerName, StateTax stateTax,
+            Product product, BigDecimal area){
+        return new Order(orderDate, getNextAvailableOrderNumber(), customerName, stateTax, product, area);
+    }
+    
     /**
      * Creates and returns a new Order object
      * @param orderDate - Date order will be fulfilled

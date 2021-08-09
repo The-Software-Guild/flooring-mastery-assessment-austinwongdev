@@ -177,7 +177,7 @@ public class OrderDaoFileImplTest {
         assertTrue(ordersOnDateAfter.contains(expectedOrder), "Order #4 should be in list now.");
         
         // Clean-up
-        new FileWriter(TEST_FILE_PATH + "Orders_06032013");
+        new FileWriter(TEST_FILE_PATH + "Orders_06032013.txt");
     }
     
     @Test

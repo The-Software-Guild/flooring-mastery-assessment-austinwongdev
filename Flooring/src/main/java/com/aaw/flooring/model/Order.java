@@ -28,6 +28,16 @@ public class Order {
     private BigDecimal total;
     private LocalDate orderDate;
 
+    public Order(LocalDate orderDate, int orderNumber, String customerName, StateTax stateTax,
+            Product product, BigDecimal area){
+        this.orderDate = orderDate;
+        this.orderNumber = orderNumber;
+        this.customerName = customerName;
+        this.stateTax = stateTax;
+        this.product = product;
+        this.area = area;
+    }
+    
     public Order(LocalDate orderDate, int orderNumber, String customerName, StateTax stateTax, 
                  Product product, BigDecimal area, BigDecimal materialCost, 
                  BigDecimal laborCost, BigDecimal tax, 
