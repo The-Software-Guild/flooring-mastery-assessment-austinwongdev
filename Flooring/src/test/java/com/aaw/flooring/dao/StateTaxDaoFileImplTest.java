@@ -78,23 +78,4 @@ public class StateTaxDaoFileImplTest {
         assertEquals(expectedStateTax, returnedStateTax, "Should return Texas's State Tax");
     }
     
-    @Test
-    public void testAddRemoveStateTax(){
-        StateTax expectedStateTax = new StateTax("TX", "Texas", 
-                                                 new BigDecimal("4.45"));
-        
-        testStateTaxDao.addStateTax(expectedStateTax);
-        
-        StateTax returnedStateTax = testStateTaxDao.getStateTax("TX");
-        assertNotNull(returnedStateTax, "TX should have been added");
-        
-        StateTax removedStateTax = testStateTaxDao.removeStateTax("TX");
-        assertNotNull(removedStateTax, "Should return a StateTax");
-        assertEquals(expectedStateTax, removedStateTax, "Removed StateTax should be TX");
-        
-        returnedStateTax = testStateTaxDao.getStateTax("TX");
-        assertNull(returnedStateTax, "TX should no longer be retrievable.");
-        
-    }
-    
 }

@@ -19,8 +19,6 @@ public interface StateTaxDao {
     
     StateTax addStateTax(StateTax stateTax);
     
-    StateTax removeStateTax(String stateAbbreviation);
-    
     void loadStateTaxes() throws OrderPersistenceException;
     
 }

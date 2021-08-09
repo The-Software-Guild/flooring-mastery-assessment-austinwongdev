@@ -19,8 +19,6 @@ public interface ProductDao {
 
     Product addProduct(Product product);
     
-    Product removeProduct(String productType);
-    
     void loadProducts() throws OrderPersistenceException;
     
 }

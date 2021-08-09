@@ -44,11 +44,6 @@ public class StateTaxDaoFileImpl implements StateTaxDao {
         return stateTaxMap.put(stateTax.getStateAbbreviation(), stateTax);
     }
     
-    @Override
-    public StateTax removeStateTax(String stateAbbreviation){
-        return stateTaxMap.remove(stateAbbreviation);
-    }
-    
     /**
      * Loads state taxes from each line of file. Each line is assumed to be a
      * separate state tax and a header line is assumed.

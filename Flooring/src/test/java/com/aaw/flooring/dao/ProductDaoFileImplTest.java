@@ -80,21 +80,4 @@ public class ProductDaoFileImplTest {
         assertEquals(expectedProduct, returnedProduct, "Should return Carpet");
     }
     
-    @Test
-    public void testAddRemoveProduct(){
-        Product expectedProduct = new Product("Carpet", new BigDecimal("2.25"), 
-                                              new BigDecimal("2.10"));
-        
-        testProductDao.addProduct(expectedProduct);
-        Product returnedProduct = testProductDao.getProduct("Carpet");
-        assertNotNull(returnedProduct, "Carpet should have been added.");
-        
-        Product removedProduct = testProductDao.removeProduct("Carpet");
-        assertNotNull(removedProduct, "Should return a Product");
-        assertEquals(expectedProduct, removedProduct, "Removed product should be Carpet");
-        
-        returnedProduct = testProductDao.getProduct("Carpet");
-        assertNull(returnedProduct, "Carpet should no longer be retrievable.");
-    }
-    
 }
