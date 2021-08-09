@@ -42,6 +42,7 @@ public class OrderAuditDaoFileImplTest {
 
     @Test
     public void testWriteAuditEntryAppend() {
+        fail("Not yet supported.");
     }
     
 }
