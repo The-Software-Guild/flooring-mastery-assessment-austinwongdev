@@ -151,7 +151,7 @@ public class OrderDaoFileImplTest {
     }
     
     @Test
-    public void testSaveOrders(){
+    public void testSaveLoadOrder() throws OrderPersistenceException{
         int orderNumber = 4;
         LocalDate orderDate = LocalDate.parse("2013-06-02");
         Order expectedOrder = new Order(orderNumber,"Rick Moranis", "CA", 
@@ -162,9 +162,10 @@ public class OrderDaoFileImplTest {
         List<Order> ordersOnDateBefore = testOrderDao.getAllOrdersOnDate(orderDate);
         
         testOrderDao.addOrder(expectedOrder, orderDate);
-        testOrderDao.saveOrders(orderDate);
-        
+        testOrderDao.saveOrder(orderDate);
+        testOrderDao.loadAllOrders();
         List<Order> ordersOnDateAfter = testOrderDao.getAllOrdersOnDate(orderDate);
+        
         assertFalse(ordersOnDateBefore.contains(expectedOrder), "Order #4 should not be in list yet.");
         assertTrue(ordersOnDateAfter.contains(expectedOrder), "Order #4 should be in list now.");
     }
@@ -179,13 +180,13 @@ public class OrderDaoFileImplTest {
     }
     
     @Test
-    public void testGetNextAvailableOrderNumber(){
-        int expectedOrderNumber = 2;
-        LocalDate orderDate = LocalDate.parse("2013-06-01");
+    public void testGetNextAvailableOrderNumber() throws OrderPersistenceException{
+        int expectedOrderNumber = 4;
         
-        int returnedOrderNumber = testOrderDao.getNextAvailableOrderNumber(orderDate);
+        testOrderDao.loadAllOrders();
+        int returnedOrderNumber = testOrderDao.getNextAvailableOrderNumber();
         
-        assertEquals(expectedOrderNumber, returnedOrderNumber, "Order # should equal 2");
+        assertEquals(expectedOrderNumber, returnedOrderNumber, "Order # should equal 4");
     }
     
 }

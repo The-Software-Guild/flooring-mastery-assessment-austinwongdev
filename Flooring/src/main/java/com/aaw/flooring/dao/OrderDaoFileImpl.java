@@ -35,8 +35,25 @@ public class OrderDaoFileImpl implements OrderDao {
         this.ORDER_FOLDER_PATH = ORDER_FOLDER_PATH;
     }
     
+    private Order unmarshallOrder(String orderAsText){
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    private String marshallOrder(Order order){
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    private String generateFileName(LocalDate orderDate){
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     @Override
     public Order getOrder(int orderNumber, LocalDate orderDate) throws OrderNotFoundException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<Order> getAllOrdersOnDate(LocalDate orderDate) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -61,34 +78,22 @@ public class OrderDaoFileImpl implements OrderDao {
     }
 
     @Override
-    public List<Order> loadAllOrdersOnDate(LocalDate orderDate) {
+    public void loadAllOrders() throws OrderPersistenceException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void saveOrders(LocalDate orderDate) {
+    public void saveOrder(LocalDate orderDate) throws OrderPersistenceException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public List<Order> getAllOrdersOnDate(LocalDate orderDate) {
+    public void saveAllOrders() throws OrderPersistenceException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public int getNextAvailableOrderNumber(LocalDate orderDate) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
-    private Order unmarshallOrder(String orderAsText){
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
-    private String marshallOrder(Order order){
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
-    private String generateFileName(LocalDate orderDate){
+    public int getNextAvailableOrderNumber() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

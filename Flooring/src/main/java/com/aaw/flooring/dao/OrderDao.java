@@ -20,17 +20,23 @@ import java.util.List;
 public interface OrderDao {
 
     Order getOrder(int orderNumber, LocalDate orderDate) throws OrderNotFoundException;
+    List<Order> getAllOrdersOnDate(LocalDate orderDate);
+    
     Order addOrder(Order order, LocalDate orderDate);
     Order createOrder(LocalDate orderDate, String customerName, String state,
             BigDecimal taxRate, String productType, BigDecimal area, 
             BigDecimal costPerSquareFoot, BigDecimal laborCostPerSquareFoot, 
             BigDecimal materialCost, BigDecimal laborCost, BigDecimal tax, 
             BigDecimal total);
+    
     Order editOrder(int orderNumber, LocalDate orderDate, String newCustomerName,
                     String newState, String newProductType, BigDecimal newArea);
+    
     Order removeOrder(int orderNumber, LocalDate orderDate);
-    List<Order> loadAllOrdersOnDate(LocalDate orderDate);
-    void saveOrders(LocalDate orderDate);
-    List<Order> getAllOrdersOnDate(LocalDate orderDate);
-    int getNextAvailableOrderNumber(LocalDate orderDate);
+    
+    void loadAllOrders() throws OrderPersistenceException;
+    void saveOrder(LocalDate orderDate) throws OrderPersistenceException;
+    void saveAllOrders() throws OrderPersistenceException;
+    
+    int getNextAvailableOrderNumber();
 }
