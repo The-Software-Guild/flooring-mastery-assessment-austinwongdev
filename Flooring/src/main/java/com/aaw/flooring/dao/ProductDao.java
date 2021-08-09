@@ -7,10 +7,18 @@
 
 package com.aaw.flooring.dao;
 
+import com.aaw.flooring.model.Product;
+
 /**
  *
  * @author Austin Wong
  */
 public interface ProductDao {
+    
+    Product getProduct(String productType);
 
+    Product addProduct(Product product);
+    
+    void loadProducts() throws OrderPersistenceException;
+    
 }

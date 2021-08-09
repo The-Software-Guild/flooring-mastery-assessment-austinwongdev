@@ -18,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class OrderDaoFileImplTest {
     
+    private OrderDao testFlooringOrderDao;
+    
     public OrderDaoFileImplTest() {
     }
     
@@ -38,8 +40,68 @@ public class OrderDaoFileImplTest {
     }
 
     @Test
-    public void testSomeMethod() {
-        fail("The test case is a prototype.");
+    public void testAddGetOrder(){
+        
+    }
+    
+    @Test
+    public void testGetOrderOrderNotFound(){
+        
+    }
+    
+    @Test
+    public void testCreateOrder(){
+        
+    }
+    
+    @Test
+    public void testEditOrderNoChanges(){
+        
+    }
+    
+    @Test
+    public void testRemoveOrderOrderFound(){
+        
+    }
+    
+    @Test
+    public void testRemoveOrderOrderNotFound(){
+        
+    }
+    
+    @Test
+    public void testLoadOrderOrderFound(){
+        
+    }
+    
+    @Test
+    public void testLoadOrderOrderNotFound(){
+        
+    }
+    
+    @Test
+    public void testSaveOrdersNewFile(){
+        
+    }
+    
+    @Test
+    public void testSaveOrdersExistingFile(){
+        
+    }
+    
+    @Test
+    public void testGetAllOrdersOnDateFileFound(){
+        
+    }
+    
+    @Test
+    public void testGetAllOrdersOnDateFileNotFound(){
+        
+    }
+    
+    @Test
+    public void testGetNextAvailableOrderNumber(){
+        
     }
     
 }

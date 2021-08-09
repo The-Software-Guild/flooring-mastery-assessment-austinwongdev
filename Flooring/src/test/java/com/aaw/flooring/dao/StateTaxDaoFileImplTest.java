@@ -18,6 +18,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class StateTaxDaoFileImplTest {
     
+    private String TEST_STATE_TAX_FILE;
+    private StateTaxDao TEST_STATE_TAX_DAO;
+    
     public StateTaxDaoFileImplTest() {
     }
     
@@ -38,8 +41,12 @@ public class StateTaxDaoFileImplTest {
     }
 
     @Test
-    public void testSomeMethod() {
-        fail("The test case is a prototype.");
+    public void testLoadGetProducts() {
+    }
+    
+    @Test
+    public void testAddGetProduct(){
+        
     }
     
 }

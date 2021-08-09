@@ -18,6 +18,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class OrderAuditDaoFileImplTest {
     
+    private String TEST_AUDIT_FILE;
+    private OrderAuditDao TEST_AUDIT_DAO;
+    
     public OrderAuditDaoFileImplTest() {
     }
     
@@ -38,8 +41,7 @@ public class OrderAuditDaoFileImplTest {
     }
 
     @Test
-    public void testSomeMethod() {
-        fail("The test case is a prototype.");
+    public void testWriteAuditEntryAppend() {
     }
     
 }
