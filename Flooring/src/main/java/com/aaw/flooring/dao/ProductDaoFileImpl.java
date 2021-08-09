@@ -44,6 +44,11 @@ public class ProductDaoFileImpl implements ProductDao {
         return productMap.put(product.getProductType(), product);
     }
     
+    @Override
+    public Product removeProduct(String productType){
+        return productMap.remove(productType);
+    }
+    
     /**
      * Loads Products from each line of file. Each line is assumed to be a
      * separate product and a header line is assumed.

@@ -5,6 +5,9 @@
  */
 package com.aaw.flooring.dao;
 
+import com.aaw.flooring.model.Product;
+import com.aaw.flooring.model.StateTax;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,10 +21,11 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class StateTaxDaoFileImplTest {
     
-    private String TEST_STATE_TAX_FILE;
-    private StateTaxDao TEST_STATE_TAX_DAO;
+    private final String TEST_STATE_TAX_FILE = "src/test/resources/TestData/Taxes.txt";
+    private final StateTaxDao testStateTaxDao;
     
     public StateTaxDaoFileImplTest() {
+        this.testStateTaxDao = new StateTaxDaoFileImpl(TEST_STATE_TAX_FILE);
     }
     
     @BeforeAll
@@ -41,11 +45,55 @@ public class StateTaxDaoFileImplTest {
     }
 
     @Test
-    public void testLoadGetProducts() {
+    public void testLoadGetStateTaxes() throws OrderPersistenceException {
+        StateTax expectedStateTax = new StateTax("TX", "Texas", 
+                                                 new BigDecimal("4.45"));
+        
+        testStateTaxDao.loadStateTaxes();
+        
+        StateTax returnedStateTax = testStateTaxDao.getStateTax("TX");
+        assertNotNull(returnedStateTax, "Should return a StateTax");
+        assertEquals(expectedStateTax, returnedStateTax, "Should return Texas's State Tax");
+    
     }
     
     @Test
-    public void testAddGetProduct(){
+    public void testLoadStateTaxesFileNotFound(){
+        StateTaxDao badDao = new StateTaxDaoFileImpl("NonExistentFile.txt");
+        
+        assertThrows(OrderPersistenceException.class, 
+                     () -> badDao.loadStateTaxes(),
+                     "Should throw OrderPersistenceException");
+    }
+    
+    @Test
+    public void testAddGetStateTax() throws OrderPersistenceException{
+        StateTax expectedStateTax = new StateTax("TX", "Texas", 
+                                                 new BigDecimal("4.45"));
+        
+        testStateTaxDao.addStateTax(expectedStateTax);
+        
+        StateTax returnedStateTax = testStateTaxDao.getStateTax("TX");
+        assertNotNull(returnedStateTax, "Should return a StateTax");
+        assertEquals(expectedStateTax, returnedStateTax, "Should return Texas's State Tax");
+    }
+    
+    @Test
+    public void testAddRemoveStateTax(){
+        StateTax expectedStateTax = new StateTax("TX", "Texas", 
+                                                 new BigDecimal("4.45"));
+        
+        testStateTaxDao.addStateTax(expectedStateTax);
+        
+        StateTax returnedStateTax = testStateTaxDao.getStateTax("TX");
+        assertNotNull(returnedStateTax, "TX should have been added");
+        
+        StateTax removedStateTax = testStateTaxDao.removeStateTax("TX");
+        assertNotNull(removedStateTax, "Should return a StateTax");
+        assertEquals(expectedStateTax, removedStateTax, "Removed StateTax should be TX");
+        
+        returnedStateTax = testStateTaxDao.getStateTax("TX");
+        assertNull(returnedStateTax, "TX should no longer be retrievable.");
         
     }
     

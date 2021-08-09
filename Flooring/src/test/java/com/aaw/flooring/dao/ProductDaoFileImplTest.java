@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -22,11 +23,11 @@ import org.junit.jupiter.api.Test;
  */
 public class ProductDaoFileImplTest {
     
-    private final String TEST_PRODUCT_FILE;
+    private final String TEST_PRODUCT_FILE =
+            "src/test/resources/TestData/Products.txt";
     private final ProductDao testProductDao;
     
     public ProductDaoFileImplTest() {
-        this.TEST_PRODUCT_FILE = "src/test/resources/TestData/Products.txt";
         this.testProductDao = new ProductDaoFileImpl(TEST_PRODUCT_FILE);
     }
     
@@ -47,7 +48,7 @@ public class ProductDaoFileImplTest {
     }
 
     @Test
-    public void testLoadGetProducts() throws OrderPersistenceException{
+    public void testLoadGetProduct() throws OrderPersistenceException{
         Product expectedProduct = new Product("Carpet", new BigDecimal("2.25"), 
                                               new BigDecimal("2.10"));
         
@@ -68,7 +69,7 @@ public class ProductDaoFileImplTest {
     }
     
     @Test
-    public void testAddGetProducts(){
+    public void testAddGetProduct(){
         Product expectedProduct = new Product("Carpet", new BigDecimal("2.25"), 
                                               new BigDecimal("2.10"));
         
@@ -77,6 +78,23 @@ public class ProductDaoFileImplTest {
         Product returnedProduct = testProductDao.getProduct("Carpet");
         assertNotNull(returnedProduct, "Should return a Product");
         assertEquals(expectedProduct, returnedProduct, "Should return Carpet");
+    }
+    
+    @Test
+    public void testAddRemoveProduct(){
+        Product expectedProduct = new Product("Carpet", new BigDecimal("2.25"), 
+                                              new BigDecimal("2.10"));
+        
+        testProductDao.addProduct(expectedProduct);
+        Product returnedProduct = testProductDao.getProduct("Carpet");
+        assertNotNull(returnedProduct, "Carpet should have been added.");
+        
+        Product removedProduct = testProductDao.removeProduct("Carpet");
+        assertNotNull(removedProduct, "Should return a Product");
+        assertEquals(expectedProduct, removedProduct, "Removed product should be Carpet");
+        
+        returnedProduct = testProductDao.getProduct("Carpet");
+        assertNull(returnedProduct, "Carpet should no longer be retrievable.");
     }
     
 }
