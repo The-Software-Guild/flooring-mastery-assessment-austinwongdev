@@ -8,6 +8,7 @@
 package com.aaw.flooring.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Objects;
 
 /**
@@ -16,32 +17,27 @@ import java.util.Objects;
  */
 public class Order {
 
-    private int orderNumber;
+    private final int orderNumber;
     private String customerName;
-    private String state;
-    private BigDecimal taxRate;
-    private String productType;
+    private StateTax stateTax;
+    private Product product;
     private BigDecimal area;
-    private BigDecimal costPerSquareFoot;
-    private BigDecimal laborCostPerSquareFoot;
     private BigDecimal materialCost;
     private BigDecimal laborCost;
     private BigDecimal tax;
     private BigDecimal total;
+    private LocalDate orderDate;
 
-    public Order(int orderNumber, String customerName, String state, 
-                 BigDecimal taxRate, String productType, BigDecimal area, 
-                 BigDecimal costPerSquareFoot, BigDecimal laborCostPerSquareFoot, 
-                 BigDecimal materialCost, BigDecimal laborCost, BigDecimal tax, 
+    public Order(LocalDate orderDate, int orderNumber, String customerName, StateTax stateTax, 
+                 Product product, BigDecimal area, BigDecimal materialCost, 
+                 BigDecimal laborCost, BigDecimal tax, 
                  BigDecimal total) {
+        this.orderDate = orderDate;
         this.orderNumber = orderNumber;
         this.customerName = customerName;
-        this.state = state;
-        this.taxRate = taxRate;
-        this.productType = productType;
+        this.stateTax = stateTax;
+        this.product = product;
         this.area = area;
-        this.costPerSquareFoot = costPerSquareFoot;
-        this.laborCostPerSquareFoot = laborCostPerSquareFoot;
         this.materialCost = materialCost;
         this.laborCost = laborCost;
         this.tax = tax;
@@ -60,28 +56,20 @@ public class Order {
         this.customerName = customerName;
     }
 
-    public String getState() {
-        return state;
+    public StateTax getStateTax() {
+        return stateTax;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public void setStateTax(StateTax stateTax) {
+        this.stateTax = stateTax;
     }
 
-    public BigDecimal getTaxRate() {
-        return taxRate;
+    public Product getProduct(){
+        return product;
     }
-
-    public void setTaxRate(BigDecimal taxRate) {
-        this.taxRate = taxRate;
-    }
-
-    public String getProductType() {
-        return productType;
-    }
-
-    public void setProductType(String productType) {
-        this.productType = productType;
+    
+    public void setProduct(Product product){
+        this.product = product;
     }
 
     public BigDecimal getArea() {
@@ -90,22 +78,6 @@ public class Order {
 
     public void setArea(BigDecimal area) {
         this.area = area;
-    }
-
-    public BigDecimal getCostPerSquareFoot() {
-        return costPerSquareFoot;
-    }
-
-    public void setCostPerSquareFoot(BigDecimal costPerSquareFoot) {
-        this.costPerSquareFoot = costPerSquareFoot;
-    }
-
-    public BigDecimal getLaborCostPerSquareFoot() {
-        return laborCostPerSquareFoot;
-    }
-
-    public void setLaborCostPerSquareFoot(BigDecimal laborCostPerSquareFoot) {
-        this.laborCostPerSquareFoot = laborCostPerSquareFoot;
     }
 
     public BigDecimal getMaterialCost() {
@@ -139,22 +111,28 @@ public class Order {
     public void setTotal(BigDecimal total) {
         this.total = total;
     }
+    
+    public LocalDate getOrderDate(){
+        return orderDate;
+    }
+    
+    public void setOrderDate(LocalDate orderDate){
+        this.orderDate = orderDate;
+    }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 53 * hash + this.orderNumber;
-        hash = 53 * hash + Objects.hashCode(this.customerName);
-        hash = 53 * hash + Objects.hashCode(this.state);
-        hash = 53 * hash + Objects.hashCode(this.taxRate);
-        hash = 53 * hash + Objects.hashCode(this.productType);
-        hash = 53 * hash + Objects.hashCode(this.area);
-        hash = 53 * hash + Objects.hashCode(this.costPerSquareFoot);
-        hash = 53 * hash + Objects.hashCode(this.laborCostPerSquareFoot);
-        hash = 53 * hash + Objects.hashCode(this.materialCost);
-        hash = 53 * hash + Objects.hashCode(this.laborCost);
-        hash = 53 * hash + Objects.hashCode(this.tax);
-        hash = 53 * hash + Objects.hashCode(this.total);
+        int hash = 3;
+        hash = 71 * hash + this.orderNumber;
+        hash = 71 * hash + Objects.hashCode(this.customerName);
+        hash = 71 * hash + Objects.hashCode(this.stateTax);
+        hash = 71 * hash + Objects.hashCode(this.product);
+        hash = 71 * hash + Objects.hashCode(this.area);
+        hash = 71 * hash + Objects.hashCode(this.materialCost);
+        hash = 71 * hash + Objects.hashCode(this.laborCost);
+        hash = 71 * hash + Objects.hashCode(this.tax);
+        hash = 71 * hash + Objects.hashCode(this.total);
+        hash = 71 * hash + Objects.hashCode(this.orderDate);
         return hash;
     }
 
@@ -176,22 +154,13 @@ public class Order {
         if (!Objects.equals(this.customerName, other.customerName)) {
             return false;
         }
-        if (!Objects.equals(this.state, other.state)) {
+        if (!Objects.equals(this.stateTax, other.stateTax)) {
             return false;
         }
-        if (!Objects.equals(this.productType, other.productType)) {
-            return false;
-        }
-        if (!Objects.equals(this.taxRate, other.taxRate)) {
+        if (!Objects.equals(this.product, other.product)) {
             return false;
         }
         if (!Objects.equals(this.area, other.area)) {
-            return false;
-        }
-        if (!Objects.equals(this.costPerSquareFoot, other.costPerSquareFoot)) {
-            return false;
-        }
-        if (!Objects.equals(this.laborCostPerSquareFoot, other.laborCostPerSquareFoot)) {
             return false;
         }
         if (!Objects.equals(this.materialCost, other.materialCost)) {
@@ -204,6 +173,9 @@ public class Order {
             return false;
         }
         if (!Objects.equals(this.total, other.total)) {
+            return false;
+        }
+        if (!Objects.equals(this.orderDate, other.orderDate)) {
             return false;
         }
         return true;

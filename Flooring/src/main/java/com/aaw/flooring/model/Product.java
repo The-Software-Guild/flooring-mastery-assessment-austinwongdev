@@ -36,7 +36,7 @@ public class Product {
         return this.costPerSquareFoot;
     }
     
-    public BigDecimal laborCostPerSquareFoot(){
+    public BigDecimal getLaborCostPerSquareFoot(){
         return this.laborCostPerSquareFoot;
     }
 

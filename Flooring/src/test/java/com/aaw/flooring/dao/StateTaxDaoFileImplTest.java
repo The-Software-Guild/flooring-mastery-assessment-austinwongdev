@@ -5,7 +5,6 @@
  */
 package com.aaw.flooring.dao;
 
-import com.aaw.flooring.model.Product;
 import com.aaw.flooring.model.StateTax;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.AfterEach;
@@ -46,7 +45,7 @@ public class StateTaxDaoFileImplTest {
 
     @Test
     public void testLoadGetStateTaxes() throws OrderPersistenceException {
-        StateTax expectedStateTax = new StateTax("TX", "Texas", 
+        StateTax expectedStateTax = new StateTax("TX", 
                                                  new BigDecimal("4.45"));
         
         testStateTaxDao.loadStateTaxes();

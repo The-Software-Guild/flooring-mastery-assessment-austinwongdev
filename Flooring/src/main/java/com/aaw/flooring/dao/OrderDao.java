@@ -8,6 +8,9 @@
 package com.aaw.flooring.dao;
 
 import com.aaw.flooring.model.Order;
+import com.aaw.flooring.model.Product;
+import com.aaw.flooring.model.StateTax;
+import com.aaw.flooring.service.NoOrdersOnDateException;
 import com.aaw.flooring.service.OrderNotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,23 +23,21 @@ import java.util.List;
 public interface OrderDao {
 
     Order getOrder(int orderNumber, LocalDate orderDate) throws OrderNotFoundException;
-    List<Order> getAllOrdersOnDate(LocalDate orderDate);
+    List<Order> getAllOrdersOnDate(LocalDate orderDate) throws NoOrdersOnDateException;
     
-    Order addOrder(Order order, LocalDate orderDate);
-    Order createOrder(LocalDate orderDate, String customerName, String state,
-            BigDecimal taxRate, String productType, BigDecimal area, 
-            BigDecimal costPerSquareFoot, BigDecimal laborCostPerSquareFoot, 
-            BigDecimal materialCost, BigDecimal laborCost, BigDecimal tax, 
-            BigDecimal total);
+    Order addOrder(Order order);
+    Order createOrder(LocalDate orderDate, String customerName, StateTax stateTax, Product product, 
+            BigDecimal area, BigDecimal materialCost, BigDecimal laborCost, 
+            BigDecimal tax, BigDecimal total);
     
-    Order editOrder(int orderNumber, LocalDate orderDate, String newCustomerName,
-                    String newState, String newProductType, BigDecimal newArea);
+    Order editOrder(Order order, String newCustomerName,
+                    StateTax newStateTax, Product newProduct, BigDecimal newArea);
     
     Order removeOrder(int orderNumber, LocalDate orderDate);
     
     void loadAllOrders() throws OrderPersistenceException;
-    void saveOrder(LocalDate orderDate) throws OrderPersistenceException;
-    void saveAllOrders() throws OrderPersistenceException;
+    void saveOrder(LocalDate orderDate) throws NoOrdersOnDateException, OrderPersistenceException;
+    void saveAllOrders() throws NoOrdersOnDateException, OrderPersistenceException;
     
     int getNextAvailableOrderNumber();
 }

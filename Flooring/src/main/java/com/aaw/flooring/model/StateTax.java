@@ -17,12 +17,16 @@ import java.util.Objects;
 public class StateTax {
 
     private final String stateAbbreviation;
-    private final String stateName;
+    private String stateName;
     private final BigDecimal taxRate;
     
     public StateTax(String stateAbbreviation,
-                    String stateName,
                     BigDecimal taxRate){
+        this.stateAbbreviation = stateAbbreviation;
+        this.taxRate = taxRate;
+    }
+    
+    public StateTax(String stateAbbreviation, String stateName, BigDecimal taxRate){
         this.stateAbbreviation = stateAbbreviation;
         this.stateName = stateName;
         this.taxRate = taxRate;
@@ -36,16 +40,19 @@ public class StateTax {
         return this.stateName;
     }
     
+    public void setStateName(String stateName){
+        this.stateName = stateName;
+    }
+    
     public BigDecimal getTaxRate(){
         return this.taxRate;
     }
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 59 * hash + Objects.hashCode(this.stateAbbreviation);
-        hash = 59 * hash + Objects.hashCode(this.stateName);
-        hash = 59 * hash + Objects.hashCode(this.taxRate);
+        int hash = 7;
+        hash = 67 * hash + Objects.hashCode(this.stateAbbreviation);
+        hash = 67 * hash + Objects.hashCode(this.taxRate);
         return hash;
     }
 
@@ -64,15 +71,11 @@ public class StateTax {
         if (!Objects.equals(this.stateAbbreviation, other.stateAbbreviation)) {
             return false;
         }
-        if (!Objects.equals(this.stateName, other.stateName)) {
-            return false;
-        }
         if (!Objects.equals(this.taxRate, other.taxRate)) {
             return false;
         }
         return true;
     }
-    
-    
+        
     
 }
