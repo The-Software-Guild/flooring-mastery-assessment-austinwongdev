@@ -6,6 +6,7 @@
 package com.aaw.flooring.service;
 
 import com.aaw.flooring.dao.OrderDaoFileImpl;
+import com.aaw.flooring.dao.OrderPersistenceException;
 import com.aaw.flooring.dao.ProductDaoFileImpl;
 import com.aaw.flooring.dao.StateTaxDaoFileImpl;
 import com.aaw.flooring.model.Order;
@@ -61,11 +62,12 @@ public class FlooringServiceLayerImplTest {
     }
 
     @Test
-    public void testLoadAllOrdersOnDateExistent(){
+    public void testLoadAllOrdersOnDateExistent() throws NoOrdersOnDateException, OrderPersistenceException{
         LocalDate orderDate = LocalDate.parse("2013-06-02");
         int expectedNumOrders = 2;
         
-        List<Order> ordersOnDate = testService.loadAllOrdersOnDate(orderDate);
+        testService.loadAllOrders();
+        List<Order> ordersOnDate = testService.getAllOrdersOnDate(orderDate);
         
         assertEquals(expectedNumOrders, ordersOnDate.size(), 
                 "Should have loaded 2 orders from 6/2/2013");
@@ -76,12 +78,12 @@ public class FlooringServiceLayerImplTest {
         LocalDate orderDate = LocalDate.parse("1990-01-01");
         
         assertThrows(NoOrdersOnDateException.class,
-                () -> testService.loadAllOrdersOnDate(orderDate),
+                () -> testService.getAllOrdersOnDate(orderDate),
                 "Should throw NoOrdersOnDateException");
     }
     
     @Test
-    public void testSaveAddedOrders() throws IOException{
+    public void testSaveAddedOrders() throws IOException, OrderNotFoundException, OrderPersistenceException, NoOrdersOnDateException{
         // Clear file
         new FileWriter("src/test/resources/TestOrders/Orders_06042013.txt");
         // Add order
@@ -92,7 +94,7 @@ public class FlooringServiceLayerImplTest {
                 stateTax1, product1, new BigDecimal("100.00"));
         
         // Save and load order
-        testService.saveAddedOrders();
+        testService.saveOrders();
         testService.loadAllOrders();
         Order returnedOrder = testService.getOrder(expectedOrder.getOrderNumber(), order1Date);
         
@@ -111,7 +113,7 @@ public class FlooringServiceLayerImplTest {
     }
     
     @Test
-    public void testCreateGetOrder(){
+    public void testCreateGetOrder() throws OrderNotFoundException{
         Product product1 = new Product("Tile", new BigDecimal("3.50"), new BigDecimal("4.15"));
         StateTax stateTax1 = new StateTax("CA", "California", new BigDecimal("25.00"));
         LocalDate order1Date = LocalDate.parse("2013-06-01");
@@ -153,7 +155,6 @@ public class FlooringServiceLayerImplTest {
         Order returnedOrder = testService.editOrder(order1, newName, newStateTax, newProduct, newArea);
         
         assertNotNull(returnedOrder, "Returned order should not be null");
-        assertNotEquals(order1, returnedOrder, "Returned order should be different");
         assertEquals(newArea, returnedOrder.getArea(), "Area should be 300.00");
         assertEquals(newProduct, returnedOrder.getProduct(), "Product should be Wood");
         assertEquals(newStateTax, returnedOrder.getStateTax(), "State Tax should be OR");
@@ -188,27 +189,30 @@ public class FlooringServiceLayerImplTest {
     }
     
     @Test
-    public void testGetAllProducts(){
+    public void testGetAllProducts() throws OrderPersistenceException{
         List<Product> expectedProducts = new ArrayList<>();
         Product carpetProduct = new Product("Carpet", new BigDecimal("2.25"), new BigDecimal("2.10"));
         Product laminateProduct = new Product("Laminate", new BigDecimal("1.75"), new BigDecimal("2.10"));
         expectedProducts.add(carpetProduct);
         expectedProducts.add(laminateProduct);
         
+        testService.loadAllProducts();
         List<Product> returnedProducts = testService.getAllProducts();
         
         assertNotNull(returnedProducts, "Should return 2 products");
         assertEquals(expectedProducts, returnedProducts, "Should return list of products with carpet and laminate");
     }
     
+    
     @Test
-    public void testGetAllStateTaxes(){
+    public void testGetAllStateTaxes() throws OrderPersistenceException{
         List<StateTax> expectedStateTaxes = new ArrayList<>();
         StateTax texas = new StateTax("TX", "Texas", new BigDecimal("4.45"));
         StateTax washington = new StateTax("WA", "Washington", new BigDecimal("9.25"));
         expectedStateTaxes.add(texas);
         expectedStateTaxes.add(washington);
         
+        testService.loadAllStateTaxes();
         List<StateTax> returnedStateTaxes = testService.getAllStateTaxes();
         
         assertNotNull(returnedStateTaxes, "Should return 2 state taxes");

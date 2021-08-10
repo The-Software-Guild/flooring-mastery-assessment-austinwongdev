@@ -12,9 +12,12 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -84,6 +87,11 @@ public class StateTaxDaoFileImpl implements StateTaxDao {
         StateTax newStateTax = new StateTax(stateAbbreviation, stateName,
                                          taxRate);
         return newStateTax;
+    }
+
+    @Override
+    public List<StateTax> getAllStateTaxes() {
+        return stateTaxMap.values().stream().sorted(Comparator.comparing(StateTax::getStateAbbreviation)).collect(Collectors.toList());
     }
     
 }

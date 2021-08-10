@@ -103,6 +103,15 @@ public class OrderDaoFileImpl implements OrderDao {
         return order;
     }
     
+    /**
+     * Creates and returns a new Order object with a newly assigned order number
+     * @param orderDate - LocalDate that order will be fulfilled
+     * @param customerName - String name of customer
+     * @param stateTax - StateTax object containing info on order's state and tax rate
+     * @param product - Product object containing info on order's product and product costs
+     * @param area - Flooring area in square feet
+     * @return - Newly created Order object
+     */
     @Override
     public Order createOrder(LocalDate orderDate, String customerName, StateTax stateTax,
             Product product, BigDecimal area){
@@ -195,7 +204,11 @@ public class OrderDaoFileImpl implements OrderDao {
         
     }
     
-    
+    /**
+     * Takes a filename and loads order data into memory
+     * @param orderFileName - String of ".txt" filename containing orders on a given date
+     * @throws OrderPersistenceException 
+     */
     private void loadOrder(String orderFileName) throws OrderPersistenceException{
         Scanner scanner;
         

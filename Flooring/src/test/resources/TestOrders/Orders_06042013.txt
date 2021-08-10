@@ -1,0 +1,2 @@
+OrderNumber::CustomerName::State::TaxRate::ProductType::Area::CostPerSquareFoot::LaborCostPerSquareFoot::MaterialCost::LaborCost::Tax::Total
+1::Rick Moranis::CA::25.00::Tile::100.00::3.50::4.15::350.00::415.00::191.25::956.25

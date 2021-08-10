@@ -12,9 +12,12 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 /**
  * Used to interact with Product DTOs in file format.
@@ -37,6 +40,11 @@ public class ProductDaoFileImpl implements ProductDao {
     @Override
     public Product getProduct(String productType){
         return productMap.get(productType);
+    }
+    
+    @Override
+    public List<Product> getAllProducts(){
+        return productMap.values().stream().sorted(Comparator.comparing(Product::getProductType)).collect(Collectors.toList());
     }
     
     @Override

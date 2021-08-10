@@ -8,14 +8,18 @@
 package com.aaw.flooring.service;
 
 import com.aaw.flooring.dao.OrderDao;
+import com.aaw.flooring.dao.OrderPersistenceException;
 import com.aaw.flooring.dao.ProductDao;
 import com.aaw.flooring.dao.StateTaxDao;
 import com.aaw.flooring.model.Order;
 import com.aaw.flooring.model.Product;
 import com.aaw.flooring.model.StateTax;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -33,54 +37,161 @@ public class FlooringServiceLayerImpl implements FlooringServiceLayer {
         this.stateTaxDao = stateTaxDao;
     }
     
+    /**
+     * Returns a list of Orders on a given date
+     * @param orderDate - LocalDate of order fulfillment date
+     * @return - List of Order objects on given date
+     * @throws NoOrdersOnDateException 
+     */
     @Override
-    public List<Order> loadAllOrdersOnDate(LocalDate orderDate) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public List<Order> getAllOrdersOnDate(LocalDate orderDate) throws NoOrdersOnDateException {
+        return orderDao.getAllOrdersOnDate(orderDate);
     }
 
+    /**
+     * Saves new and edited orders to file.
+     * @throws NoOrdersOnDateException
+     * @throws OrderPersistenceException 
+     */
     @Override
-    public void saveAddedOrders() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void saveOrders() throws NoOrdersOnDateException, OrderPersistenceException {
+        orderDao.saveAllOrders();
     }
 
+    /**
+     * Retrieves an Order object based on order number and order date
+     * @param orderNumber - Integer representing order number
+     * @param orderDate - LocalDate representing order fulfillment date
+     * @return - Order object
+     * @throws OrderNotFoundException 
+     */
     @Override
-    public Order getOrder(int orderNumber, LocalDate orderDate) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Order getOrder(int orderNumber, LocalDate orderDate) throws OrderNotFoundException {
+        return orderDao.getOrder(orderNumber, orderDate);
     }
 
+    /**
+     * Creates a new Order object, calculates its costs, adds object to memory, 
+     * and returns newly created Order object.
+     * @param orderDate - LocalDate representing order fulfillment date
+     * @param customerName - String of customer's name
+     * @param stateTax - StateTax object for order
+     * @param product - Product for order
+     * @param area - BigDecimal representing square feet of flooring area
+     * @return - Newly created Order object
+     */
     @Override
     public Order createOrder(LocalDate orderDate, String customerName, StateTax stateTax, Product product, BigDecimal area) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Order newOrder = orderDao.createOrder(orderDate, customerName, stateTax, product, area);
+        calculateOrder(newOrder);
+        orderDao.addOrder(newOrder);
+        return newOrder;
     }
 
+    /**
+     * Edits an existing order
+     * @param orderToEdit - Order object to edit
+     * @param newCustomerName - String representing new customer name on order
+     * @param newStateTax - New StateTax object for order
+     * @param newProduct - New Product object for order
+     * @param newArea - BigInteger representing new flooring area in square feet
+     * @return - Edited order object
+     */
     @Override
     public Order editOrder(Order orderToEdit, String newCustomerName, StateTax newStateTax, Product newProduct, BigDecimal newArea) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return orderDao.editOrder(orderToEdit, newCustomerName, newStateTax, newProduct, newArea);
     }
-
+    
+    /**
+     * Removes an order from memory
+     * @param orderNumber - Integer representing the order number
+     * @param orderDate - LocalDate representing the order fulfillment date
+     * @return - Removed Order object
+     */
     @Override
     public Order removeOrder(int orderNumber, LocalDate orderDate) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return orderDao.removeOrder(orderNumber, orderDate);
     }
 
+    /**
+     * Returns a list of all Products in memory
+     * @return - List of Product objects
+     */
     @Override
     public List<Product> getAllProducts() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return productDao.getAllProducts();
     }
 
+    /**
+     * Returns a list of all StateTaxes in memory
+     * @return - List of StateTax objects
+     */
     @Override
     public List<StateTax> getAllStateTaxes() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return stateTaxDao.getAllStateTaxes();
     }
 
+    /**
+     * Calculates material cost, labor cost, tax, and total for a given order.
+     * Rounds to 2 decimal places using HALF_UP rounding.
+     * @param order - Order object to calculate costs
+     * @return - Order object after updating calculated fields
+     */
     @Override
     public Order calculateOrder(Order order) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        // Get necessary objects for calculation
+        BigDecimal area = order.getArea();
+        Product product = order.getProduct();
+        StateTax stateTax = order.getStateTax();
+        
+        // Calculate costs
+        BigDecimal materialCost = area.multiply(product.getCostPerSquareFoot());
+        materialCost = materialCost.setScale(2, RoundingMode.HALF_UP);
+        
+        BigDecimal laborCost = area.multiply(product.getLaborCostPerSquareFoot());
+        laborCost = laborCost.setScale(2, RoundingMode.HALF_UP);
+        
+        BigDecimal tax = (materialCost.add(laborCost)).multiply((stateTax.getTaxRate().divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP)));
+        tax = tax.setScale(2, RoundingMode.HALF_UP);
+        
+        BigDecimal total = materialCost.add(laborCost).add(tax);
+        total = total.setScale(2, RoundingMode.HALF_UP);
+        
+        // Set costs in order object
+        order.setLaborCost(laborCost);
+        order.setMaterialCost(materialCost);
+        order.setTax(tax);
+        order.setTotal(total);
+        
+        return order;
     }
 
+    /**
+     * Loads all orders from file into memory
+     * @throws OrderPersistenceException 
+     */
     @Override
-    public void loadAllOrders() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void loadAllOrders() throws OrderPersistenceException{
+        orderDao.loadAllOrders();
+    }
+    
+    /**
+     * Loads all products from file into memory
+     * @throws OrderPersistenceException 
+     */
+    @Override
+    public void loadAllProducts() throws OrderPersistenceException{
+        productDao.loadProducts();
+    }
+    
+    /**
+     * Loads all state taxes from file into memory
+     * @throws OrderPersistenceException 
+     */
+    @Override
+    public void loadAllStateTaxes() throws OrderPersistenceException{
+        stateTaxDao.loadStateTaxes();
     }
 
 }

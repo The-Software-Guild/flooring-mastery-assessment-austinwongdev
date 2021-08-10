@@ -8,6 +8,7 @@
 package com.aaw.flooring.dao;
 
 import com.aaw.flooring.model.StateTax;
+import java.util.List;
 
 /**
  *
@@ -16,6 +17,8 @@ import com.aaw.flooring.model.StateTax;
 public interface StateTaxDao {
 
     StateTax getStateTax(String stateAbbreviation);
+    
+    List<StateTax> getAllStateTaxes();
     
     StateTax addStateTax(StateTax stateTax);
     

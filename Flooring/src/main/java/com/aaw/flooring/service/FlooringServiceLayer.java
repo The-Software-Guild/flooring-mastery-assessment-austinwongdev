@@ -7,6 +7,7 @@
 
 package com.aaw.flooring.service;
 
+import com.aaw.flooring.dao.OrderPersistenceException;
 import com.aaw.flooring.model.Order;
 import com.aaw.flooring.model.Product;
 import com.aaw.flooring.model.StateTax;
@@ -20,10 +21,12 @@ import java.util.List;
  */
 public interface FlooringServiceLayer {
 
-    void loadAllOrders();
-    List<Order> loadAllOrdersOnDate(LocalDate orderDate);
-    void saveAddedOrders();
-    Order getOrder(int orderNumber, LocalDate orderDate);
+    void loadAllOrders() throws OrderPersistenceException;
+    void loadAllProducts() throws OrderPersistenceException;
+    void loadAllStateTaxes() throws OrderPersistenceException;
+    List<Order> getAllOrdersOnDate(LocalDate orderDate) throws NoOrdersOnDateException;
+    void saveOrders() throws NoOrdersOnDateException, OrderPersistenceException;
+    Order getOrder(int orderNumber, LocalDate orderDate) throws OrderNotFoundException;
     Order createOrder(LocalDate orderDate, String customerName, StateTax stateTax,
             Product product, BigDecimal area);
     Order editOrder(Order orderToEdit, String newCustomerName, StateTax newStateTax,

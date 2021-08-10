@@ -8,6 +8,7 @@
 package com.aaw.flooring.dao;
 
 import com.aaw.flooring.model.Product;
+import java.util.List;
 
 /**
  *
@@ -16,6 +17,8 @@ import com.aaw.flooring.model.Product;
 public interface ProductDao {
     
     Product getProduct(String productType);
+    
+    List<Product> getAllProducts();
 
     Product addProduct(Product product);
     
