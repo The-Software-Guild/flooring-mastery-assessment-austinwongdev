@@ -10,8 +10,6 @@ package com.aaw.flooring.dao;
 import com.aaw.flooring.model.Order;
 import com.aaw.flooring.model.Product;
 import com.aaw.flooring.model.StateTax;
-import com.aaw.flooring.service.NoOrdersOnDateException;
-import com.aaw.flooring.service.OrderNotFoundException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -45,8 +43,13 @@ public class OrderDaoFileImpl implements OrderDao {
         this.ORDER_FOLDER_PATH = "src/main/resources/Orders/";
     }
     
-    public OrderDaoFileImpl(String ORDER_FOLDER_PATH) {
-        this.ORDER_FOLDER_PATH = ORDER_FOLDER_PATH;
+    /**
+     * Constructs OrderDaoFileImpl object that uses the given order folder path
+     * for loading and saving orders
+     * @param orderFolderPath - Path to folder containing Orders files
+     */
+    public OrderDaoFileImpl(String orderFolderPath) {
+        this.ORDER_FOLDER_PATH = orderFolderPath;
     }
     
     /**
@@ -55,29 +58,36 @@ public class OrderDaoFileImpl implements OrderDao {
      * @param orderNumber - Integer representing the unique order number
      * @param orderDate - LocalDate representing the date of order fulfillment, 
      * not the date the order was placed
-     * @return - Order object
-     * @throws OrderNotFoundException 
+     * @return - Order object 
+     * @throws com.aaw.flooring.dao.NoOrdersOnDateException 
+     * @throws com.aaw.flooring.dao.OrderNotFoundException 
      */
     @Override
-    public Order getOrder(int orderNumber, LocalDate orderDate) throws OrderNotFoundException {
+    public Order getOrder(int orderNumber, LocalDate orderDate) 
+            throws NoOrdersOnDateException, OrderNotFoundException {
         Map<Integer, Order> ordersOnDate = orderStore.get(orderDate);
         if (ordersOnDate == null || ordersOnDate.isEmpty()){
-            throw new OrderNotFoundException("Order not found");
+            throw new NoOrdersOnDateException(generateNoOrdersOnDateExceptionMessage(orderDate));
         }
         Order order = ordersOnDate.get(orderNumber);
+        if (order == null){
+            throw new OrderNotFoundException("Order not found.");
+        }
         return order;
     }
 
     /**
      * Takes in a date and returns all orders that will be fulfilled on that date
+     * sorted by order number.
      * @param orderDate - LocalDate representing the date of order fulfillment
      * @return List of Order objects, sorted by order #
+     * @throws com.aaw.flooring.dao.NoOrdersOnDateException
      */
     @Override
     public List<Order> getAllOrdersOnDate(LocalDate orderDate) throws NoOrdersOnDateException {
         Map<Integer, Order> ordersOnDate = orderStore.get(orderDate);
         if (ordersOnDate == null || ordersOnDate.isEmpty()){
-            throw new NoOrdersOnDateException("No orders found on that date");
+            throw new NoOrdersOnDateException(generateNoOrdersOnDateExceptionMessage(orderDate));
         }
         return ordersOnDate.values().stream()
                 .sorted(Comparator.comparingInt(Order::getOrderNumber))
@@ -93,17 +103,23 @@ public class OrderDaoFileImpl implements OrderDao {
     @Override
     public Order addOrder(Order order) {
         LocalDate orderDate = order.getOrderDate();
+        
+        // Retrieve map from orderId to order for given date, if non-existent create one
         Map<Integer, Order> ordersOnDate = orderStore.get(orderDate);
         if (ordersOnDate == null){
             ordersOnDate = new HashMap<>();
         }
+        
+        // Put order in map and put map in orderStore
         order = ordersOnDate.put(order.getOrderNumber(), order);
         orderStore.put(orderDate, ordersOnDate);
+        
         return order;
     }
     
     /**
      * Creates and returns a new Order object with a newly assigned order number
+     * before doing performing cost calculations
      * @param orderDate - LocalDate that order will be fulfilled
      * @param customerName - String name of customer
      * @param stateTax - StateTax object containing info on order's state and tax rate
@@ -118,7 +134,8 @@ public class OrderDaoFileImpl implements OrderDao {
     }
     
     /**
-     * Creates and returns a new Order object
+     * Creates and returns a new Order object with a newly assigned order number
+     * and cost calculations already provided in parameters
      * @param orderDate - Date order will be fulfilled
      * @param customerName - String name of customer
      * @param stateTax - StateTax object containing info on order's state and tax rate
@@ -150,6 +167,8 @@ public class OrderDaoFileImpl implements OrderDao {
      */
     @Override
     public Order editOrder(Order orderToEdit, String newCustomerName, StateTax newStateTax, Product newProduct, BigDecimal newArea) {
+        
+        // Check if edited fields are different
         if (newCustomerName.equals(orderToEdit.getCustomerName()) &&
                 newStateTax.equals(orderToEdit.getStateTax()) &&
                 newProduct.equals(orderToEdit.getProduct()) &&
@@ -157,6 +176,7 @@ public class OrderDaoFileImpl implements OrderDao {
             return null;
         }
         
+        // Edit fields to reflect changes
         orderToEdit.setCustomerName(newCustomerName);
         orderToEdit.setStateTax(newStateTax);
         orderToEdit.setProduct(newProduct);
@@ -170,15 +190,18 @@ public class OrderDaoFileImpl implements OrderDao {
      * @param orderNumber - Integer representing order number
      * @param orderDate - LocalDate representing order fulfillment date
      * @return - Removed Order object if found, null otherwise
+     * @throws com.aaw.flooring.dao.NoOrdersOnDateException
+     * @throws com.aaw.flooring.dao.OrderNotFoundException
      */
     @Override
-    public Order removeOrder(int orderNumber, LocalDate orderDate) {
+    public Order removeOrder(int orderNumber, LocalDate orderDate) 
+            throws NoOrdersOnDateException, OrderNotFoundException{
         Map<Integer, Order> ordersOnDate = orderStore.get(orderDate);
         
-        // Don't act on null objects
-        if (ordersOnDate == null || ordersOnDate.isEmpty()){
-            return null;
-        }
+        // If order doesn't exist, getOrder will throw an exception
+        this.getOrder(orderNumber, orderDate);
+        
+        // Remove order
         Order removedOrder = ordersOnDate.remove(orderNumber);
         
         // Remove map if there are no more orders on that date
@@ -187,28 +210,6 @@ public class OrderDaoFileImpl implements OrderDao {
         }
         
         return removedOrder;
-    }
-
-    /**
-     * Loads all order files in Orders folder to memory
-     * @throws OrderPersistenceException 
-     */
-    @Override
-    public void loadAllOrders() throws OrderPersistenceException {
-        
-        // Get list of .txt files starting with "Orders_" in Order folder
-        File directoryPath = new File(ORDER_FOLDER_PATH);
-        FilenameFilter textFilefilter = (File dir, String name) -> {
-            String lowercaseName = name.toLowerCase();
-            return lowercaseName.endsWith(".txt") &&
-                    name.startsWith("Orders_");
-        };
-        String[] filesList = directoryPath.list(textFilefilter);
-        
-        // Load each file
-        for (String file : filesList){
-            loadOrder(file);
-        }
     }
     
     /**
@@ -251,6 +252,28 @@ public class OrderDaoFileImpl implements OrderDao {
         orderStore.put(orderDate, ordersOnDate);
         
         scanner.close();
+    }
+
+    /**
+     * Loads all order files in Orders folder to memory
+     * @throws OrderPersistenceException 
+     */
+    @Override
+    public void loadAllOrders() throws OrderPersistenceException {
+        
+        // Get list of .txt files starting with "Orders_" in Order folder
+        File directoryPath = new File(ORDER_FOLDER_PATH);
+        FilenameFilter textFilefilter = (File dir, String name) -> {
+            String lowercaseName = name.toLowerCase();
+            return lowercaseName.endsWith(".txt") &&
+                    name.startsWith("Orders_");
+        };
+        String[] filesList = directoryPath.list(textFilefilter);
+        
+        // Load each file
+        for (String file : filesList){
+            loadOrder(file);
+        }
     }
     
     /**
@@ -308,7 +331,7 @@ public class OrderDaoFileImpl implements OrderDao {
     }
     
     /**
-     * Takes in an order date and generates an order filepath.
+     * Takes in an order date and generates an order filepath with .txt extension.
      * @param orderDate - LocalDate representing order date
      * @return - String of order filepath
      */
@@ -336,6 +359,7 @@ public class OrderDaoFileImpl implements OrderDao {
             return;
         }
         
+        // Overwrite file
         PrintWriter out;
         try{
             out = new PrintWriter(new FileWriter(generateFilePath(orderDate)));
@@ -372,6 +396,7 @@ public class OrderDaoFileImpl implements OrderDao {
                     out.println(orderStr);
                     out.flush();
                 });
+        
         out.close();
     }
 
@@ -389,7 +414,7 @@ public class OrderDaoFileImpl implements OrderDao {
     }
 
     /**
-     * Iterates over all orders and returns the integer after the highest order
+     * Iterates over all orders in memory and returns the integer after the highest order
      * number
      * @return - Integer of the next available order number
      */
@@ -408,5 +433,15 @@ public class OrderDaoFileImpl implements OrderDao {
             }
         }
         return maxOrderNumber+1;
+    }
+    
+    /**
+     * Generates an error message specific to given date when no orders are
+     * found on a given date
+     * @param date - LocalDate used to search for orders
+     * @return String of error message
+     */
+    private String generateNoOrdersOnDateExceptionMessage(LocalDate date){
+        return "No orders found on " + date.format(DateTimeFormatter.ofPattern("M/d/yyyy"));
     }
 }

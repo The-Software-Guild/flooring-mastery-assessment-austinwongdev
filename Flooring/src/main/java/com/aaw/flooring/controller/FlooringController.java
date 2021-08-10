@@ -12,12 +12,11 @@ import com.aaw.flooring.model.Order;
 import com.aaw.flooring.model.Product;
 import com.aaw.flooring.model.StateTax;
 import com.aaw.flooring.service.FlooringServiceLayer;
-import com.aaw.flooring.service.NoOrdersOnDateException;
-import com.aaw.flooring.service.OrderNotFoundException;
+import com.aaw.flooring.dao.NoOrdersOnDateException;
+import com.aaw.flooring.dao.OrderNotFoundException;
 import com.aaw.flooring.view.FlooringView;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,6 +35,9 @@ public class FlooringController {
         this.view = view;
     }
     
+    /**
+     * Runs Flooring program
+     */
     public void run(){
         
         // Load files
@@ -48,6 +50,7 @@ public class FlooringController {
             return;
         }
         
+        // Main Menu
         boolean continueMainMenu = true;
         int mainMenuSelection;
         while (continueMainMenu){
@@ -66,13 +69,15 @@ public class FlooringController {
                     removeOrder();
                     break;
                 case 5:
-                    saveOrders();
+                    saveAddedOrders();
                     continueMainMenu = false;
                     break;
                 default:
                     view.displayInvalidSelectionMessage();
             }
         }
+        
+        // Exit
         view.displayExitMessage();
     }
     
@@ -86,17 +91,17 @@ public class FlooringController {
         try{
             ordersOnDate = service.getAllOrdersOnDate(orderDate);
         } catch(NoOrdersOnDateException ex){
-            view.displayErrorMessageAndWait("No orders found on " + orderDate.format(DateTimeFormatter.ofPattern("M/d/yyyy")));
+            view.displayErrorMessageAndWait(ex.getMessage());
             return;
         }
         
-        // Display one-line mini summaries and pause
+        // Display one-line mini summaries of each order and pause
         for (Order order : ordersOnDate){
             view.displayMiniOrderSummary(order);
         }
         view.pressEnterToContinue();
         
-        // Display full detailed summaries
+        // Display full detailed summaries of each order and continue
         for (Order order : ordersOnDate){
             view.displayOrderSummary(order);
         }
@@ -109,22 +114,14 @@ public class FlooringController {
     private void addOrders(){
         view.displayAddOrderBanner();
         
-        // Get Product
-        Product product = getProduct();
-        
-        // Get State Tax
+        // Prompt for order fields
+        Product product = getAvailableProduct();
         StateTax stateTax = getStateTax();
-        
-        // Get Order Date
         LocalDate orderDate = view.promptFutureOrderDate();
-        
-        // Get Customer Name
         String customerName;
         do{
             customerName = view.promptCustomerName();
         } while (!service.isValidCustomerName(customerName));
-        
-        // Get Flooring Area
         BigDecimal area = view.promptArea(service.getMinimumArea());
         
         // Create new Order object
@@ -152,34 +149,28 @@ public class FlooringController {
     private void editOrder(){
         view.displayEditOrderBanner();
         
-        // Find order
+        // Prompt order number and date, then find order
         Order order;
         try{
             order = findOrder();
-        } catch (OrderNotFoundException ex){
+        } catch (OrderNotFoundException | NoOrdersOnDateException ex){
             return;
         }
         
-        // Prompt for new customer name
+        // Prompt for editable fields
         String oldCustomerName = order.getCustomerName();
-        String newCustomerName = getCustomerName(oldCustomerName);
-        
-        // Prompt for new state
+        String newCustomerName = getNewCustomerName(oldCustomerName);
         StateTax oldStateTax = order.getStateTax();
-        StateTax newStateTax = getStateTax(oldStateTax);
-        
-        // Prompt for new product
+        StateTax newStateTax = getNewStateTax(oldStateTax);
         Product oldProduct = order.getProduct();
-        Product newProduct = getProduct(oldProduct);
-        
-        // Prompt for new area
+        Product newProduct = getNewOrderProduct(oldProduct);
         BigDecimal oldArea = order.getArea();
         BigDecimal newArea = view.promptArea(service.getMinimumArea(), oldArea);
         if (newArea == null){
             newArea = oldArea;
         }
         
-        // Check for changes
+        // Return early if no changes
         if (service.editOrder(order, newCustomerName, newStateTax, newProduct, newArea) == null){
             view.displayCancelEditOrderSuccessMessage();
             return;
@@ -189,7 +180,7 @@ public class FlooringController {
         service.calculateOrder(order);
         view.displayOrderSummary(order);
         
-        // Confirm Edits
+        // Confirm Edits and Save
         if (view.confirmEditOrder()){
             try{
                 service.saveOrder(order.getOrderDate());
@@ -199,7 +190,7 @@ public class FlooringController {
                 view.displayErrorMessageAndWait(ex.getMessage());
             }
         }
-        // Revert changes
+        // Otherwise, revert changes
         else{
             service.editOrder(order, oldCustomerName, oldStateTax, oldProduct, oldArea);
             service.calculateOrder(order);
@@ -214,36 +205,39 @@ public class FlooringController {
     private void removeOrder(){
         view.displayRemoveOrderBanner();
         
-        // Find order
+        // Prompt order number and date, then find order
         Order order;
         try{
             order = findOrder();
-        } catch (OrderNotFoundException ex){
+        } catch (OrderNotFoundException | NoOrdersOnDateException ex){
             return;
         }
         
         // Display order
         view.displayOrderSummary(order);
         
-        // Confirm removal
+        // Confirm removal and save
         if (view.confirmRemoveOrder()){
-            service.removeOrder(order.getOrderNumber(), order.getOrderDate());
             try{
+                service.removeOrder(order.getOrderNumber(), order.getOrderDate());
                 service.saveOrder(order.getOrderDate());
                 view.displayRemoveOrderSuccessMessage();
-            } catch (NoOrdersOnDateException | OrderPersistenceException ex){
+            } catch (NoOrdersOnDateException | 
+                    OrderNotFoundException | 
+                    OrderPersistenceException ex){
                 view.displayErrorMessageAndWait(ex.getMessage());
             }
         }
+        // Otherwise don't remove order
         else{
             view.displayCancelRemoveOrderMessage();
         }
     }
     
     /**
-     * Saves session changes (added, edited and removed orders) to file.
+     * Saves added orders to file if user provides confirmation.
      */
-    private void saveOrders(){
+    private void saveAddedOrders(){
         if (view.promptSaveAddedOrders()){
             try{
                 service.saveAllOrders();
@@ -264,13 +258,13 @@ public class FlooringController {
      * @return - Order that matches user-entered date and order number
      * @throws OrderNotFoundException 
      */
-    private Order findOrder() throws OrderNotFoundException{
+    private Order findOrder() throws OrderNotFoundException, NoOrdersOnDateException{
         LocalDate orderDate = view.promptOrderDate();
         int orderNumber = view.promptOrderNumber();
         Order order;
         try{
             order = service.getOrder(orderNumber, orderDate);
-        } catch(OrderNotFoundException ex){
+        } catch(OrderNotFoundException | NoOrdersOnDateException ex){
             view.displayErrorMessageAndWait(ex.getMessage());
             throw new OrderNotFoundException(ex.getMessage(), ex.getCause());
         }
@@ -283,7 +277,7 @@ public class FlooringController {
      * @return String of new customer name or original customer name user
      * enters nothing
      */
-    private String getCustomerName(String currentCustomerName){
+    private String getNewCustomerName(String currentCustomerName){
         String newCustomerName;
         do{
             newCustomerName = view.promptCustomerName(currentCustomerName);
@@ -299,7 +293,7 @@ public class FlooringController {
      * select a valid product
      * @return - Product object that user selected
      */
-    private Product getProduct(){
+    private Product getAvailableProduct(){
         Set<String> productNameSet = service.getAllProducts().stream()
                 .map((product) -> product.getProductType())
                 .collect(Collectors.toSet());
@@ -318,7 +312,7 @@ public class FlooringController {
      * @return - Product object that user selected or original Product if user
      * enters nothing
      */
-    private Product getProduct(Product currentProduct){
+    private Product getNewOrderProduct(Product currentProduct){
         Set<String> productNameSet = service.getAllProducts().stream()
                 .map((product) -> product.getProductType())
                 .collect(Collectors.toSet());
@@ -357,7 +351,7 @@ public class FlooringController {
      * @return - StateTax object based on state user selected or the original
      * StateTax object if user enters nothing
      */
-    private StateTax getStateTax(StateTax currentStateTax){
+    private StateTax getNewStateTax(StateTax currentStateTax){
         Set<String> stateAbbreviationSet = service.getAllStateTaxes().stream()
                 .map((stateTax) -> stateTax.getStateAbbreviation())
                 .collect(Collectors.toSet());

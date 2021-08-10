@@ -5,7 +5,7 @@
  * purpose: 
  */
 
-package com.aaw.flooring.service;
+package com.aaw.flooring.dao;
 
 /**
  *

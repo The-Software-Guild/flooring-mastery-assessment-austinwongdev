@@ -42,6 +42,15 @@ public class StateTaxDaoFileImpl implements StateTaxDao {
         return stateTaxMap.get(stateAbbreviation);
     }
     
+    /**
+     * Returns a list of StateTax objects sorted alphabetically by StateTaxAbbreviation
+     * @return - List of StateTax objects
+     */
+    @Override
+    public List<StateTax> getAllStateTaxes() {
+        return stateTaxMap.values().stream().sorted(Comparator.comparing(StateTax::getStateAbbreviation)).collect(Collectors.toList());
+    }
+    
     @Override
     public StateTax addStateTax(StateTax stateTax){
         return stateTaxMap.put(stateTax.getStateAbbreviation(), stateTax);
@@ -87,11 +96,6 @@ public class StateTaxDaoFileImpl implements StateTaxDao {
         StateTax newStateTax = new StateTax(stateAbbreviation, stateName,
                                          taxRate);
         return newStateTax;
-    }
-
-    @Override
-    public List<StateTax> getAllStateTaxes() {
-        return stateTaxMap.values().stream().sorted(Comparator.comparing(StateTax::getStateAbbreviation)).collect(Collectors.toList());
     }
     
 }

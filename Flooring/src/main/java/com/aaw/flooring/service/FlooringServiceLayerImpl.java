@@ -7,6 +7,8 @@
 
 package com.aaw.flooring.service;
 
+import com.aaw.flooring.dao.OrderNotFoundException;
+import com.aaw.flooring.dao.NoOrdersOnDateException;
 import com.aaw.flooring.dao.OrderDao;
 import com.aaw.flooring.dao.OrderPersistenceException;
 import com.aaw.flooring.dao.ProductDao;
@@ -36,24 +38,30 @@ public class FlooringServiceLayerImpl implements FlooringServiceLayer {
     }
     
     /**
-     * Returns a list of Orders on a given date
-     * @param orderDate - LocalDate of order fulfillment date
-     * @return - List of Order objects on given date
-     * @throws NoOrdersOnDateException 
-     */
-    @Override
-    public List<Order> getAllOrdersOnDate(LocalDate orderDate) throws NoOrdersOnDateException {
-        return orderDao.getAllOrdersOnDate(orderDate);
-    }
-
-    /**
-     * Saves new, edited, and removed orders to file.
-     * @throws NoOrdersOnDateException
+     * Loads all products from file into memory
      * @throws OrderPersistenceException 
      */
     @Override
-    public void saveAllOrders() throws NoOrdersOnDateException, OrderPersistenceException {
-        orderDao.saveAllOrders();
+    public void loadAllProducts() throws OrderPersistenceException{
+        productDao.loadProducts();
+    }
+    
+    /**
+     * Loads all state taxes from file into memory
+     * @throws OrderPersistenceException 
+     */
+    @Override
+    public void loadAllStateTaxes() throws OrderPersistenceException{
+        stateTaxDao.loadStateTaxes();
+    }
+    
+    /**
+     * Loads all orders from file into memory
+     * @throws OrderPersistenceException 
+     */
+    @Override
+    public void loadAllOrders() throws OrderPersistenceException{
+        orderDao.loadAllOrders();
     }
     
     /**
@@ -66,21 +74,80 @@ public class FlooringServiceLayerImpl implements FlooringServiceLayer {
     public void saveOrder(LocalDate orderDate) throws NoOrdersOnDateException, OrderPersistenceException{
         orderDao.saveOrder(orderDate);
     }
+    
+    /**
+     * Saves new, edited, and removed orders to file.
+     * @throws NoOrdersOnDateException
+     * @throws OrderPersistenceException 
+     */
+    @Override
+    public void saveAllOrders() throws NoOrdersOnDateException, OrderPersistenceException {
+        orderDao.saveAllOrders();
+    }
+    
+    
+    /**
+     * Returns a Product object given a product name
+     * @param productType - String of product name
+     * @return - Product object
+     */
+    @Override
+    public Product getProduct(String productType) {
+        return productDao.getProduct(productType);
+    }
+    
+    /**
+     * Returns a list of all Products in memory
+     * @return - List of Product objects
+     */
+    @Override
+    public List<Product> getAllProducts() {
+        return productDao.getAllProducts();
+    }
 
+    
+    /**
+     * Returns a StateTax object given a state abbreviation
+     * @param stateAbbreviation - String of state abbreviation
+     * @return - StateTax object
+     */
+    @Override
+    public StateTax getStateTax(String stateAbbreviation) {
+        return stateTaxDao.getStateTax(stateAbbreviation);
+    }
+    
+    /**
+     * Returns a list of all StateTaxes in memory
+     * @return - List of StateTax objects
+     */
+    @Override
+    public List<StateTax> getAllStateTaxes() {
+        return stateTaxDao.getAllStateTaxes();
+    }
+    
+    
     /**
      * Retrieves an Order object based on order number and order date
      * @param orderNumber - Integer representing order number
      * @param orderDate - LocalDate representing order fulfillment date
      * @return - Order object
+     * @throws NoOrdersOnDateException
      * @throws OrderNotFoundException 
      */
     @Override
-    public Order getOrder(int orderNumber, LocalDate orderDate) throws OrderNotFoundException {
-        Order order = orderDao.getOrder(orderNumber, orderDate);
-        if (order == null){
-            throw new OrderNotFoundException("Order not found");
-        }
-        return order;
+    public Order getOrder(int orderNumber, LocalDate orderDate) throws NoOrdersOnDateException, OrderNotFoundException {
+        return orderDao.getOrder(orderNumber, orderDate);
+    }
+    
+    /**
+     * Returns a list of Orders on a given date
+     * @param orderDate - LocalDate of order fulfillment date
+     * @return - List of Order objects on given date
+     * @throws NoOrdersOnDateException 
+     */
+    @Override
+    public List<Order> getAllOrdersOnDate(LocalDate orderDate) throws NoOrdersOnDateException {
+        return orderDao.getAllOrdersOnDate(orderDate);
     }
 
     /**
@@ -132,26 +199,9 @@ public class FlooringServiceLayerImpl implements FlooringServiceLayer {
      * @return - Removed Order object
      */
     @Override
-    public Order removeOrder(int orderNumber, LocalDate orderDate) {
+    public Order removeOrder(int orderNumber, LocalDate orderDate) 
+            throws NoOrdersOnDateException, OrderNotFoundException{
         return orderDao.removeOrder(orderNumber, orderDate);
-    }
-
-    /**
-     * Returns a list of all Products in memory
-     * @return - List of Product objects
-     */
-    @Override
-    public List<Product> getAllProducts() {
-        return productDao.getAllProducts();
-    }
-
-    /**
-     * Returns a list of all StateTaxes in memory
-     * @return - List of StateTax objects
-     */
-    @Override
-    public List<StateTax> getAllStateTaxes() {
-        return stateTaxDao.getAllStateTaxes();
     }
 
     /**
@@ -188,53 +238,6 @@ public class FlooringServiceLayerImpl implements FlooringServiceLayer {
         order.setTotal(total);
         
         return order;
-    }
-
-    /**
-     * Loads all orders from file into memory
-     * @throws OrderPersistenceException 
-     */
-    @Override
-    public void loadAllOrders() throws OrderPersistenceException{
-        orderDao.loadAllOrders();
-    }
-    
-    /**
-     * Loads all products from file into memory
-     * @throws OrderPersistenceException 
-     */
-    @Override
-    public void loadAllProducts() throws OrderPersistenceException{
-        productDao.loadProducts();
-    }
-    
-    /**
-     * Loads all state taxes from file into memory
-     * @throws OrderPersistenceException 
-     */
-    @Override
-    public void loadAllStateTaxes() throws OrderPersistenceException{
-        stateTaxDao.loadStateTaxes();
-    }
-
-    /**
-     * Returns a Product object given a product name
-     * @param productType - String of product name
-     * @return - Product object
-     */
-    @Override
-    public Product getProduct(String productType) {
-        return productDao.getProduct(productType);
-    }
-
-    /**
-     * Returns a StateTax object given a state abbreviation
-     * @param stateAbbreviation - String of state abbreviation
-     * @return - StateTax object
-     */
-    @Override
-    public StateTax getStateTax(String stateAbbreviation) {
-        return stateTaxDao.getStateTax(stateAbbreviation);
     }
     
     /**

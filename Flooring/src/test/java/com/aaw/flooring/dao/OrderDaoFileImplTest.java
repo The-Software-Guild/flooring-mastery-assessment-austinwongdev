@@ -8,17 +8,12 @@ package com.aaw.flooring.dao;
 import com.aaw.flooring.model.Order;
 import com.aaw.flooring.model.Product;
 import com.aaw.flooring.model.StateTax;
-import com.aaw.flooring.service.NoOrdersOnDateException;
-import com.aaw.flooring.service.OrderNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,14 +29,6 @@ public class OrderDaoFileImplTest {
     private StateTax stateTax1;
     private final String TEST_FILE_PATH = "src/test/resources/TestOrders/";
     
-    @BeforeAll
-    public static void setUpClass() {
-    }
-    
-    @AfterAll
-    public static void tearDownClass() {
-    }
-    
     @BeforeEach
     public void setUp() {
         int orderNumber = 1;
@@ -54,13 +41,9 @@ public class OrderDaoFileImplTest {
                 new BigDecimal("476.21"), new BigDecimal("2381.06"));
         this.testOrderDao = new OrderDaoFileImpl(TEST_FILE_PATH);
     }
-    
-    @AfterEach
-    public void tearDown() {
-    }
 
     @Test
-    public void testAddGetOrder() throws OrderNotFoundException{
+    public void testAddGetOrder() throws OrderNotFoundException, NoOrdersOnDateException{
         Order expectedOrder = this.order1;
         
         testOrderDao.addOrder(expectedOrder);
@@ -72,13 +55,13 @@ public class OrderDaoFileImplTest {
     }
     
     @Test
-    public void testGetOrderOrderNotFound() throws OrderNotFoundException{
+    public void testGetOrderOrderNotFound() {
         int orderNumber = 4;
         LocalDate orderDate = LocalDate.parse("2013-06-01");
         
-        assertThrows(OrderNotFoundException.class,
+        assertThrows(NoOrdersOnDateException.class,
                 () -> testOrderDao.getOrder(orderNumber, orderDate),
-                "Should throw OrderNotFoundException");
+                "Should throw NoOrdersOnDateException");
     }
     
     @Test
@@ -113,7 +96,7 @@ public class OrderDaoFileImplTest {
     }
     
     @Test
-    public void testEditOrderWithChanges() throws OrderNotFoundException{
+    public void testEditOrderWithChanges() throws OrderNotFoundException, NoOrdersOnDateException{
         Order orderToEdit = this.order1;
         testOrderDao.addOrder(order1);
         
@@ -138,7 +121,7 @@ public class OrderDaoFileImplTest {
     }
     
     @Test
-    public void testRemoveOrder(){
+    public void testRemoveOrder() throws NoOrdersOnDateException, OrderNotFoundException{
         Order expectedOrder = this.order1;
         testOrderDao.addOrder(order1);
         int orderNumber = expectedOrder.getOrderNumber();
@@ -149,9 +132,9 @@ public class OrderDaoFileImplTest {
         assertNotNull(returnedOrder, "Should return an order.");
         assertEquals(expectedOrder, returnedOrder, "Should return Ada's order #1 on 6/1/2013");
         
-        assertThrows(OrderNotFoundException.class,
+        assertThrows(NoOrdersOnDateException.class,
                 () -> testOrderDao.getOrder(orderNumber, orderDate),
-                "Should throw Order Not Found exception");
+                "Should throw NoOrdersOnDate exception");
     }
     
     @Test

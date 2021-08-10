@@ -5,10 +5,9 @@
  */
 package com.aaw.flooring.service;
 
-import com.aaw.flooring.dao.OrderDaoFileImpl;
+import com.aaw.flooring.dao.OrderNotFoundException;
+import com.aaw.flooring.dao.NoOrdersOnDateException;
 import com.aaw.flooring.dao.OrderPersistenceException;
-import com.aaw.flooring.dao.ProductDaoFileImpl;
-import com.aaw.flooring.dao.StateTaxDaoFileImpl;
 import com.aaw.flooring.model.Order;
 import com.aaw.flooring.model.Product;
 import com.aaw.flooring.model.StateTax;
@@ -18,14 +17,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -42,22 +37,6 @@ public class FlooringServiceLayerImplTest {
         ApplicationContext ctx = 
                   new ClassPathXmlApplicationContext("applicationContext.xml");
         this.testService = ctx.getBean("serviceLayer", FlooringServiceLayerImpl.class);
-    }
-    
-    @BeforeAll
-    public static void setUpClass() {
-    }
-    
-    @AfterAll
-    public static void tearDownClass() {
-    }
-    
-    @BeforeEach
-    public void setUp() {
-    }
-    
-    @AfterEach
-    public void tearDown() {
     }
 
     @Test
@@ -107,13 +86,13 @@ public class FlooringServiceLayerImplTest {
         int nonExistentOrderId = 25;
         LocalDate nonExistentOrderDate = LocalDate.parse("1990-01-01");
         
-        assertThrows(OrderNotFoundException.class,
+        assertThrows(NoOrdersOnDateException.class,
                 () -> testService.getOrder(nonExistentOrderId, nonExistentOrderDate),
-                "Should throw OrderNotFoundException");
+                "Should throw NoOrdersOnDateException");
     }
     
     @Test
-    public void testCreateGetOrder() throws OrderNotFoundException{
+    public void testCreateGetOrder() throws OrderNotFoundException, NoOrdersOnDateException{
         Product product1 = new Product("Tile", new BigDecimal("3.50"), new BigDecimal("4.15"));
         StateTax stateTax1 = new StateTax("CA", "California", new BigDecimal("25.00"));
         LocalDate order1Date = LocalDate.parse("2013-06-01");
@@ -165,7 +144,7 @@ public class FlooringServiceLayerImplTest {
     }
     
     @Test
-    public void testRemoveOrderExistent(){
+    public void testRemoveOrderExistent() throws NoOrdersOnDateException, OrderNotFoundException{
         Product product1 = new Product("Tile", new BigDecimal("3.50"), new BigDecimal("4.15"));
         StateTax stateTax1 = new StateTax("CA", "California", new BigDecimal("25.00"));
         LocalDate order1Date = LocalDate.parse("2013-06-01");
@@ -177,9 +156,9 @@ public class FlooringServiceLayerImplTest {
         
         assertNotNull(removedOrder, "Should return an Order");
         assertEquals(order1, removedOrder, "Removed order should be same as created order.");
-        assertThrows(OrderNotFoundException.class,
+        assertThrows(NoOrdersOnDateException.class,
                 () -> testService.getOrder(order1.getOrderNumber(), order1Date),
-                "Should throw OrderNotFoundException");
+                "Should throw NoOrdersOnDateException");
     }
     
     @Test
@@ -187,9 +166,9 @@ public class FlooringServiceLayerImplTest {
         int nonExistentOrderId = 25;
         LocalDate nonExistentOrderDate = LocalDate.parse("1990-01-01");
         
-        assertThrows(OrderNotFoundException.class,
+        assertThrows(NoOrdersOnDateException.class,
                 () -> testService.getOrder(nonExistentOrderId, nonExistentOrderDate),
-                "Should throw OrderNotFoundException");
+                "Should throw NoOrdersOnDateException");
     }
     
     @Test

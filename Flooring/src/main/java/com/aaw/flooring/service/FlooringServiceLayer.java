@@ -7,6 +7,8 @@
 
 package com.aaw.flooring.service;
 
+import com.aaw.flooring.dao.OrderNotFoundException;
+import com.aaw.flooring.dao.NoOrdersOnDateException;
 import com.aaw.flooring.dao.OrderPersistenceException;
 import com.aaw.flooring.model.Order;
 import com.aaw.flooring.model.Product;
@@ -20,25 +22,29 @@ import java.util.List;
  * @author Austin Wong
  */
 public interface FlooringServiceLayer {
-
-    void loadAllOrders() throws OrderPersistenceException;
+    
     void loadAllProducts() throws OrderPersistenceException;
     void loadAllStateTaxes() throws OrderPersistenceException;
-    List<Order> getAllOrdersOnDate(LocalDate orderDate) throws NoOrdersOnDateException;
+    void loadAllOrders() throws OrderPersistenceException;
+    void saveOrder(LocalDate orderDate) throws NoOrdersOnDateException, OrderPersistenceException;
     void saveAllOrders() throws NoOrdersOnDateException, OrderPersistenceException;
-    Order getOrder(int orderNumber, LocalDate orderDate) throws OrderNotFoundException;
+    
+    Product getProduct(String productType);
+    List<Product> getAllProducts();
+    
+    StateTax getStateTax(String stateAbbreviation);
+    List<StateTax> getAllStateTaxes();
+    
+    Order getOrder(int orderNumber, LocalDate orderDate) throws NoOrdersOnDateException, OrderNotFoundException;
+    List<Order> getAllOrdersOnDate(LocalDate orderDate) throws NoOrdersOnDateException;
     Order createOrder(LocalDate orderDate, String customerName, StateTax stateTax,
             Product product, BigDecimal area);
     Order addOrder(Order order);
     Order editOrder(Order orderToEdit, String newCustomerName, StateTax newStateTax,
             Product newProduct, BigDecimal newArea);
-    Order removeOrder(int orderNumber, LocalDate orderDate);
-    List<Product> getAllProducts();
-    List<StateTax> getAllStateTaxes();
+    Order removeOrder(int orderNumber, LocalDate orderDate) throws NoOrdersOnDateException, OrderNotFoundException;
     Order calculateOrder(Order order);
-    Product getProduct(String productType);
-    StateTax getStateTax(String stateAbbreviation);
+    
     BigDecimal getMinimumArea();
     boolean isValidCustomerName(String customerName);
-    void saveOrder(LocalDate orderDate) throws NoOrdersOnDateException, OrderPersistenceException;
 }

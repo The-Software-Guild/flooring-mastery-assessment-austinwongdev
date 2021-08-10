@@ -10,8 +10,6 @@ package com.aaw.flooring.dao;
 import com.aaw.flooring.model.Order;
 import com.aaw.flooring.model.Product;
 import com.aaw.flooring.model.StateTax;
-import com.aaw.flooring.service.NoOrdersOnDateException;
-import com.aaw.flooring.service.OrderNotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -22,7 +20,7 @@ import java.util.List;
  */
 public interface OrderDao {
 
-    Order getOrder(int orderNumber, LocalDate orderDate) throws OrderNotFoundException;
+    Order getOrder(int orderNumber, LocalDate orderDate) throws NoOrdersOnDateException, OrderNotFoundException;
     List<Order> getAllOrdersOnDate(LocalDate orderDate) throws NoOrdersOnDateException;
     
     Order addOrder(Order order);
@@ -35,7 +33,7 @@ public interface OrderDao {
     Order editOrder(Order order, String newCustomerName,
                     StateTax newStateTax, Product newProduct, BigDecimal newArea);
     
-    Order removeOrder(int orderNumber, LocalDate orderDate);
+    Order removeOrder(int orderNumber, LocalDate orderDate) throws NoOrdersOnDateException, OrderNotFoundException;
     
     void loadAllOrders() throws OrderPersistenceException;
     void saveOrder(LocalDate orderDate) throws NoOrdersOnDateException, OrderPersistenceException;

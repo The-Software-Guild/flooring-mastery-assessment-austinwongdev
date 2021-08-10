@@ -42,6 +42,10 @@ public class ProductDaoFileImpl implements ProductDao {
         return productMap.get(productType);
     }
     
+    /**
+     * Provides a list of all products sorted alphabetically by product type
+     * @return List of Products
+     */
     @Override
     public List<Product> getAllProducts(){
         return productMap.values().stream().sorted(Comparator.comparing(Product::getProductType)).collect(Collectors.toList());
