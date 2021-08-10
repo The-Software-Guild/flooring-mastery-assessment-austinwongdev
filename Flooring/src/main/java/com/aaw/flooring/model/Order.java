@@ -200,7 +200,7 @@ public class Order {
                "\n" + "-".repeat(header.length()) +
                "\nDate: " + orderDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")) + 
                "\nCustomer Name: " + customerName + 
-               "\nState: " + stateTax.getStateName() + " (" + stateTax.getStateAbbreviation() + ")" + 
+               "\nState: " + stateTax.getStateAbbreviation() + 
                "\nState Tax: " + stateTax.getTaxRate() + "%" + 
                "\nProduct: " + product.getProductType() +
                "\nProduct Cost: $" + product.getCostPerSquareFoot() + "/ft²" +

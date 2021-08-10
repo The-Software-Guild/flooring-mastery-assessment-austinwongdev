@@ -25,7 +25,7 @@ public interface FlooringServiceLayer {
     void loadAllProducts() throws OrderPersistenceException;
     void loadAllStateTaxes() throws OrderPersistenceException;
     List<Order> getAllOrdersOnDate(LocalDate orderDate) throws NoOrdersOnDateException;
-    void saveOrders() throws NoOrdersOnDateException, OrderPersistenceException;
+    void saveAllOrders() throws NoOrdersOnDateException, OrderPersistenceException;
     Order getOrder(int orderNumber, LocalDate orderDate) throws OrderNotFoundException;
     Order createOrder(LocalDate orderDate, String customerName, StateTax stateTax,
             Product product, BigDecimal area);
@@ -40,4 +40,5 @@ public interface FlooringServiceLayer {
     StateTax getStateTax(String stateAbbreviation);
     BigDecimal getMinimumArea();
     boolean isValidCustomerName(String customerName);
+    void saveOrder(LocalDate orderDate) throws NoOrdersOnDateException, OrderPersistenceException;
 }

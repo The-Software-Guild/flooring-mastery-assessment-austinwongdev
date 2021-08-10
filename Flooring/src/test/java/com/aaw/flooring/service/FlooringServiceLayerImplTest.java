@@ -27,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  *
@@ -37,10 +39,9 @@ public class FlooringServiceLayerImplTest {
     private FlooringServiceLayer testService;
     
     public FlooringServiceLayerImplTest() {
-        this.testService = new FlooringServiceLayerImpl(
-                new OrderDaoFileImpl("src/test/resources/TestOrders/"), 
-                new ProductDaoFileImpl("src/test/resources/TestData/Products.txt"), 
-                new StateTaxDaoFileImpl("src/test/resources/TestData/Taxes.txt"));
+        ApplicationContext ctx = 
+                  new ClassPathXmlApplicationContext("applicationContext.xml");
+        this.testService = ctx.getBean("serviceLayer", FlooringServiceLayerImpl.class);
     }
     
     @BeforeAll
@@ -93,7 +94,7 @@ public class FlooringServiceLayerImplTest {
         testService.addOrder(expectedOrder);
         
         // Save and load order
-        testService.saveOrders();
+        testService.saveAllOrders();
         testService.loadAllOrders();
         Order returnedOrder = testService.getOrder(expectedOrder.getOrderNumber(), order1Date);
         

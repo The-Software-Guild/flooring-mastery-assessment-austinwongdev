@@ -1,0 +1,2 @@
+OrderNumber::CustomerName::State::TaxRate::ProductType::Area::CostPerSquareFoot::LaborCostPerSquareFoot::MaterialCost::LaborCost::Tax::Total
+7::Ronald Howard::KY::6.00::Carpet::200::2.25::2.10::450.00::420.00::52.20::922.20

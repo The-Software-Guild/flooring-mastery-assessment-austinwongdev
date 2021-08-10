@@ -40,7 +40,6 @@ public class OrderDaoFileImpl implements OrderDao {
     private final Map<LocalDate, Map<Integer, Order>> orderStore = new HashMap<>();
     private final String FIELD_DELIMITER = "::";
     private final String ORDER_FOLDER_PATH;
-    private int nextAvailableOrderNumber = 1;
 
     public OrderDaoFileImpl(){
         this.ORDER_FOLDER_PATH = "src/main/resources/Orders/";
@@ -175,10 +174,19 @@ public class OrderDaoFileImpl implements OrderDao {
     @Override
     public Order removeOrder(int orderNumber, LocalDate orderDate) {
         Map<Integer, Order> ordersOnDate = orderStore.get(orderDate);
+        
+        // Don't act on null objects
         if (ordersOnDate == null || ordersOnDate.isEmpty()){
             return null;
         }
-        return ordersOnDate.remove(orderNumber);
+        Order removedOrder = ordersOnDate.remove(orderNumber);
+        
+        // Remove map if there are no more orders on that date
+        if (ordersOnDate.isEmpty()){
+            orderStore.remove(orderDate);
+        }
+        
+        return removedOrder;
     }
 
     /**
@@ -201,7 +209,6 @@ public class OrderDaoFileImpl implements OrderDao {
         for (String file : filesList){
             loadOrder(file);
         }
-        
     }
     
     /**
@@ -319,10 +326,17 @@ public class OrderDaoFileImpl implements OrderDao {
      * @throws OrderPersistenceException 
      */
     @Override
-    public void saveOrder(LocalDate orderDate) throws NoOrdersOnDateException, OrderPersistenceException {
-        List<Order> ordersOnDate = getAllOrdersOnDate(orderDate);
-        PrintWriter out;
+    public void saveOrder(LocalDate orderDate) throws OrderPersistenceException {
         
+        // Delete file if no orders
+        Map<Integer, Order> ordersOnDateMap = orderStore.get(orderDate);
+        if (ordersOnDateMap == null || ordersOnDateMap.isEmpty()){
+            File file = new File(generateFilePath(orderDate));
+            file.delete();
+            return;
+        }
+        
+        PrintWriter out;
         try{
             out = new PrintWriter(new FileWriter(generateFilePath(orderDate)));
         } catch (IOException e){
@@ -345,6 +359,11 @@ public class OrderDaoFileImpl implements OrderDao {
                 "Total";
         out.println(header);
         out.flush();
+        
+        // Create list of orders from map
+        List<Order> ordersOnDate = ordersOnDateMap.values().stream()
+                .sorted(Comparator.comparingInt(Order::getOrderNumber))
+                .collect(Collectors.toList());
         
         // Write each order on new line
         ordersOnDate.stream()
@@ -378,6 +397,9 @@ public class OrderDaoFileImpl implements OrderDao {
     public int getNextAvailableOrderNumber() {
         int maxOrderNumber = 0;
         for (Map<Integer, Order> orderMap : orderStore.values()){
+            if (orderMap.isEmpty()){
+                continue;
+            }
             int maxOrderOnDate = orderMap.values().stream()
                     .map((order) -> order.getOrderNumber())
                     .max(Comparator.naturalOrder()).get();

@@ -16,5 +16,20 @@
           http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
 
     <!-- Bean definitions go here -->
-   
+   <bean id="orderDao" class="com.aaw.flooring.dao.OrderDaoFileImpl" />
+   <bean id="productDao" class="com.aaw.flooring.dao.ProductDaoFileImpl" />
+   <bean id="stateTaxDao" class="com.aaw.flooring.dao.StateTaxDaoFileImpl" />
+   <bean id="serviceLayer" class="com.aaw.flooring.service.FlooringServiceLayerImpl">
+       <constructor-arg ref="orderDao"/>
+       <constructor-arg ref="productDao"/>
+       <constructor-arg ref="stateTaxDao"/>
+   </bean>
+   <bean id="io" class="com.aaw.flooring.view.UserIOConsoleImpl"/>
+   <bean id="view" class="com.aaw.flooring.view.FlooringView">
+       <constructor-arg ref="io"/>
+   </bean>
+   <bean id="controller" class="com.aaw.flooring.controller.FlooringController">
+       <constructor-arg ref="serviceLayer"/>
+       <constructor-arg ref="view"/>
+   </bean>
 </beans>

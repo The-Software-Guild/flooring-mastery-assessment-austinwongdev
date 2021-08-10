@@ -70,7 +70,7 @@ public class FlooringController {
                     continueMainMenu = false;
                     break;
                 default:
-                    view.displayInvalidSelection();
+                    view.displayInvalidSelectionMessage();
             }
         }
         view.displayExitMessage();
@@ -86,9 +86,17 @@ public class FlooringController {
         try{
             ordersOnDate = service.getAllOrdersOnDate(orderDate);
         } catch(NoOrdersOnDateException ex){
-            view.displayErrorMessageAndWait("No orders found on " + orderDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+            view.displayErrorMessageAndWait("No orders found on " + orderDate.format(DateTimeFormatter.ofPattern("M/d/yyyy")));
             return;
         }
+        
+        // Display one-line mini summaries and pause
+        for (Order order : ordersOnDate){
+            view.displayMiniOrderSummary(order);
+        }
+        view.pressEnterToContinue();
+        
+        // Display full detailed summaries
         for (Order order : ordersOnDate){
             view.displayOrderSummary(order);
         }
@@ -108,7 +116,7 @@ public class FlooringController {
         StateTax stateTax = getStateTax();
         
         // Get Order Date
-        LocalDate orderDate = view.promptOrderDate();
+        LocalDate orderDate = view.promptFutureOrderDate();
         
         // Get Customer Name
         String customerName;
@@ -129,10 +137,10 @@ public class FlooringController {
         boolean confirmOrder = view.confirmAddOrder();
         if (confirmOrder){
             service.addOrder(order);
-            view.displayAddOrderSuccessBanner(order);
+            view.displayAddOrderSuccessMessage(order);
         }
         else{
-            view.displayCancelAddOrderSuccessBanner();
+            view.displayCancelAddOrderSuccessMessage();
         }
     }
     
@@ -173,7 +181,8 @@ public class FlooringController {
         
         // Check for changes
         if (service.editOrder(order, newCustomerName, newStateTax, newProduct, newArea) == null){
-            view.displayCancelEditOrderSuccessBanner();
+            view.displayCancelEditOrderSuccessMessage();
+            return;
         }
         
         // Display Summary
@@ -182,11 +191,19 @@ public class FlooringController {
         
         // Confirm Edits
         if (view.confirmEditOrder()){
-            view.displayEditOrderSuccessBanner();
+            try{
+                service.saveOrder(order.getOrderDate());
+                view.displayEditOrderSuccessMessage();
+            } catch(NoOrdersOnDateException | OrderPersistenceException ex){
+                service.editOrder(order, oldCustomerName, oldStateTax, oldProduct, oldArea);
+                view.displayErrorMessageAndWait(ex.getMessage());
+            }
         }
+        // Revert changes
         else{
             service.editOrder(order, oldCustomerName, oldStateTax, oldProduct, oldArea);
-            view.displayCancelEditOrderSuccessBanner();
+            service.calculateOrder(order);
+            view.displayCancelEditOrderSuccessMessage();
         }
     }
     
@@ -211,10 +228,15 @@ public class FlooringController {
         // Confirm removal
         if (view.confirmRemoveOrder()){
             service.removeOrder(order.getOrderNumber(), order.getOrderDate());
-            view.displayRemoveOrderSuccessBanner();
+            try{
+                service.saveOrder(order.getOrderDate());
+                view.displayRemoveOrderSuccessMessage();
+            } catch (NoOrdersOnDateException | OrderPersistenceException ex){
+                view.displayErrorMessageAndWait(ex.getMessage());
+            }
         }
         else{
-            view.displayCancelRemoveOrderBanner();
+            view.displayCancelRemoveOrderMessage();
         }
     }
     
@@ -222,17 +244,17 @@ public class FlooringController {
      * Saves session changes (added, edited and removed orders) to file.
      */
     private void saveOrders(){
-        if (view.promptSaveAllOrders()){
+        if (view.promptSaveAddedOrders()){
             try{
-                service.saveOrders();
+                service.saveAllOrders();
             } catch (NoOrdersOnDateException | OrderPersistenceException ex){
                 view.displayErrorMessageAndWait(ex.getMessage());
                 return;
             }
-            view.displaySaveAllOrdersSuccessBanner();
+            view.displaySaveAddedOrdersSuccessMessage();
         }
         else{
-            view.displayCancelSaveAllOrdersSuccessBanner();
+            view.displayCancelSaveAllOrdersSuccessMessage();
         }
     }
     

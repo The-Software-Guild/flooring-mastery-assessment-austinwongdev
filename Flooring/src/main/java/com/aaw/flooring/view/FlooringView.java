@@ -68,7 +68,7 @@ public class FlooringView {
     }
     
     /**
-     * Displays summary of order
+     * Displays multi-line detailed summary of order
      * @param order - Order object
      */
     public void displayOrderSummary(Order order){
@@ -77,44 +77,64 @@ public class FlooringView {
         io.print("");
     }
     
+    /**
+     * Displays one-line abbreviated summary of order
+     * @param order - Order object
+     */
+    public void displayMiniOrderSummary(Order order){
+        String separator = " | ";
+        String miniOrderSummary = "Order #" + order.getOrderNumber() + separator;
+        miniOrderSummary += order.getCustomerName() + separator;
+        miniOrderSummary += order.getStateTax().getStateAbbreviation() + separator;
+        miniOrderSummary += order.getProduct().getProductType() + separator;
+        miniOrderSummary += "Total: $" + order.getTotal();
+        io.print(miniOrderSummary);
+    }
+    
     public void displayDisplayOrderBanner(){
-        io.printWithBanner("Display Order");
+        io.printWithBanner("Display Orders");
     }
     
     public void displayAddOrderBanner(){
         io.printWithBanner("Add Order");
     }
     
-    public void displayAddOrderSuccessBanner(Order order){
-        io.printWithBanner("Order " + order.getOrderNumber() + " Successfully Added");
+    public void displayAddOrderSuccessMessage(Order order){
+        io.print("Order " + order.getOrderNumber() + " Successfully Added");
+        io.print("");
     }
     
-    public void displayCancelAddOrderSuccessBanner(){
-        io.printWithBanner("Order Cancelled");
+    public void displayCancelAddOrderSuccessMessage(){
+        io.print("Order Cancelled");
+        io.print("");
     }
     
     public void displayEditOrderBanner(){
         io.printWithBanner("Edit Order");
     }
     
-    public void displayEditOrderSuccessBanner(){
-        io.printWithBanner("Order Successfully Edited");
+    public void displayEditOrderSuccessMessage(){
+        io.print("Order Successfully Edited");
+        io.print("");
     }
     
-    public void displayCancelEditOrderSuccessBanner(){
-        io.printWithBanner("No changes made");
+    public void displayCancelEditOrderSuccessMessage(){
+        io.print("No changes made");
+        io.print("");
     }
     
     public void displayRemoveOrderBanner(){
         io.printWithBanner("Remove Order");
     }
     
-    public void displayRemoveOrderSuccessBanner(){
+    public void displayRemoveOrderSuccessMessage(){
         io.printWithBanner("Order Successfully Removed");
+        io.print("");
     }
     
-    public void displayCancelRemoveOrderBanner(){
-        io.printWithBanner("Cancel Order Removal");
+    public void displayCancelRemoveOrderMessage(){
+        io.print("Cancelled order removal");
+        io.print("");
     }
     
     public void displayErrorMessageAndWait(String errorMsg){
@@ -132,7 +152,19 @@ public class FlooringView {
         return io.readInt("Enter Order Number:");
     }
     
+    /**
+     * Prompts user for an order date (past, present, and future dates accepted)
+     * @return - LocalDate of order date
+     */
     public LocalDate promptOrderDate(){
+        return io.readDate("Enter Order Date: ");
+    }
+    
+    /**
+     * Prompts user for an order date after today
+     * @return - LocalDate of order date
+     */
+    public LocalDate promptFutureOrderDate(){
         return io.readDate("Enter Future Order Date: ", LocalDate.now());
     }
     
@@ -168,8 +200,8 @@ public class FlooringView {
         return io.readBigDecimalOrEmpty("Enter Area (" + currentArea.toString() + " ft²): ", minArea);
     }
     
-    public boolean promptSaveAllOrders(){
-        return io.readYesOrNo("Save All Orders? (Y/N)");
+    public boolean promptSaveAddedOrders(){
+        return io.readYesOrNo("Save Added Orders? (Y/N)");
     }
     
     public boolean confirmAddOrder(){
@@ -184,18 +216,26 @@ public class FlooringView {
         return io.readYesOrNo("Confirm Remove Order? (Y/N)");
     }
     
-    public void displayInvalidSelection(){
+    public void displayInvalidSelectionMessage(){
         io.print("Invalid selection");
         io.print("");
     }
     
-    public void displaySaveAllOrdersSuccessBanner(){
-        io.print("Orders Saved");
+    public void displaySaveAddedOrdersSuccessMessage(){
+        io.print("Added Orders Saved");
         io.print("");
     }
     
-    public void displayCancelSaveAllOrdersSuccessBanner(){
-        io.print("No Added, Edited, or Removed Orders Were Saved");
+    public void displayCancelSaveAllOrdersSuccessMessage(){
+        io.print("No Added Orders Were Saved");
         io.print("");
+    }
+    
+    /**
+     * Displays a message prompting user to press enter to continue and waits
+     * for user to press enter
+     */
+    public void pressEnterToContinue(){
+        io.pressEnterToContinue();
     }
 }

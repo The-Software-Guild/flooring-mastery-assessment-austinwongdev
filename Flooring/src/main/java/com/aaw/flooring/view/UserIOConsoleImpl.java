@@ -11,9 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.HashSet;
 import java.util.Scanner;
-import java.util.Set;
 
 /**
  *
@@ -150,7 +148,7 @@ public class UserIOConsoleImpl implements UserIO {
 
     /**
      * Takes in a message to display on the console and prompts the user with
-     * that message until the user inputs a date in format of MM/dd/yyyy
+     * that message until the user inputs a date in format of M/d/[yyyy][yy]
      * @param prompt - String to display to user
      * @return - LocalDate response to prompt
      */
@@ -160,7 +158,7 @@ public class UserIOConsoleImpl implements UserIO {
         while (true){
             try{
                 String stringValue = this.readString(prompt);
-                date = LocalDate.parse(stringValue, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+                date = LocalDate.parse(stringValue, DateTimeFormatter.ofPattern("M/d/[yyyy][yy]"));
                 break;
             }
             catch (DateTimeParseException ex){
@@ -174,15 +172,15 @@ public class UserIOConsoleImpl implements UserIO {
      * Takes in a message to display on the console and prompts the user with
      * that message until the user inputs a date that is later than min
      * @param prompt - String to display to user
-     * @param dayBeforeMin - LocalDate of day before earliest acceptable date
-     * @return - LocalDate response to prompt that is later than dayBeforeMin
+     * @param minDay - LocalDate of earliest acceptable date
+     * @return - LocalDate response to prompt that is later than minDay
      */
     @Override
-    public LocalDate readDate(String prompt, LocalDate dayBeforeMin) {
+    public LocalDate readDate(String prompt, LocalDate minDay) {
         LocalDate date;
         do{
             date = readDate(prompt);
-        } while(date.isBefore(dayBeforeMin));
+        } while(!date.isAfter(minDay));
         return date;
     }
     

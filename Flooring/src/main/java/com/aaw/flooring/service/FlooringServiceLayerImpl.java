@@ -47,13 +47,24 @@ public class FlooringServiceLayerImpl implements FlooringServiceLayer {
     }
 
     /**
-     * Saves new and edited orders to file.
+     * Saves new, edited, and removed orders to file.
      * @throws NoOrdersOnDateException
      * @throws OrderPersistenceException 
      */
     @Override
-    public void saveOrders() throws NoOrdersOnDateException, OrderPersistenceException {
+    public void saveAllOrders() throws NoOrdersOnDateException, OrderPersistenceException {
         orderDao.saveAllOrders();
+    }
+    
+    /**
+     * Saves orders on given date to file.
+     * @param orderDate - LocalDate of orders
+     * @throws NoOrdersOnDateException
+     * @throws OrderPersistenceException 
+     */
+    @Override
+    public void saveOrder(LocalDate orderDate) throws NoOrdersOnDateException, OrderPersistenceException{
+        orderDao.saveOrder(orderDate);
     }
 
     /**
@@ -67,7 +78,7 @@ public class FlooringServiceLayerImpl implements FlooringServiceLayer {
     public Order getOrder(int orderNumber, LocalDate orderDate) throws OrderNotFoundException {
         Order order = orderDao.getOrder(orderNumber, orderDate);
         if (order == null){
-            throw new OrderNotFoundException("Could not find order");
+            throw new OrderNotFoundException("Order not found");
         }
         return order;
     }
@@ -239,6 +250,7 @@ public class FlooringServiceLayerImpl implements FlooringServiceLayer {
      * Determines whether a String is a valid customer name defined by the 
      * following rules: May not be blank and may contain alphanumeric characters,
      * periods, and commas.
+     * @param customerName - String value of customer name input
      * @return - True if valid, False if invalid
      */
     @Override
