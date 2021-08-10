@@ -1,0 +1,2 @@
+OrderNumber::CustomerName::State::TaxRate::ProductType::Area::CostPerSquareFoot::LaborCostPerSquareFoot::MaterialCost::LaborCost::Tax::Total
+9::Roy Rogers::OR::2.50::Tile::125.23::3.50::4.15::438.31::519.70::28.74::986.75
