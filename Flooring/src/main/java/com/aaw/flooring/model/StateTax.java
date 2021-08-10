@@ -76,6 +76,11 @@ public class StateTax {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return stateAbbreviation + " (" + stateName + "): $" + taxRate;
+    }
         
     
 }

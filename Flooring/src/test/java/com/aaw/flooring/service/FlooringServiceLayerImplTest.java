@@ -15,14 +15,12 @@ import com.aaw.flooring.model.StateTax;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -92,6 +90,7 @@ public class FlooringServiceLayerImplTest {
         LocalDate order1Date = LocalDate.parse("2013-06-04");
         Order expectedOrder = testService.createOrder(order1Date, "Rick Moranis", 
                 stateTax1, product1, new BigDecimal("100.00"));
+        testService.addOrder(expectedOrder);
         
         // Save and load order
         testService.saveOrders();
@@ -120,6 +119,7 @@ public class FlooringServiceLayerImplTest {
         
         Order expectedOrder = testService.createOrder(order1Date, "Rick Moranis", 
                 stateTax1, product1, new BigDecimal("100.00"));
+        testService.addOrder(expectedOrder);
         Order returnedOrder = testService.getOrder(expectedOrder.getOrderNumber(), order1Date);
         
         assertNotNull(returnedOrder, "Returned order should not be null");
@@ -134,6 +134,7 @@ public class FlooringServiceLayerImplTest {
         
         Order order1 = testService.createOrder(order1Date, "Rick Moranis", 
                 stateTax1, product1, new BigDecimal("100.00"));
+        testService.addOrder(order1);
         Order returnedOrder = testService.editOrder(order1, "Rick Moranis", stateTax1, product1, new BigDecimal("100.00"));
         
         assertNull(returnedOrder, "Returned order should be null");
@@ -152,6 +153,7 @@ public class FlooringServiceLayerImplTest {
         
         Order order1 = testService.createOrder(order1Date, "Rick Moranis", 
                 stateTax1, product1, new BigDecimal("100.00"));
+        testService.addOrder(order1);
         Order returnedOrder = testService.editOrder(order1, newName, newStateTax, newProduct, newArea);
         
         assertNotNull(returnedOrder, "Returned order should not be null");
@@ -169,6 +171,7 @@ public class FlooringServiceLayerImplTest {
         
         Order order1 = testService.createOrder(order1Date, "Rick Moranis", 
                 stateTax1, product1, new BigDecimal("100.00"));
+        testService.addOrder(order1);
         Order removedOrder = testService.removeOrder(order1.getOrderNumber(), order1Date);
         
         assertNotNull(removedOrder, "Should return an Order");
@@ -227,6 +230,7 @@ public class FlooringServiceLayerImplTest {
         BigDecimal area = new BigDecimal("243.00");
         Order order1 = testService.createOrder(order1Date, "Rick Moranis", 
                 stateTax1, product1, area);
+        testService.addOrder(order1);
         
         BigDecimal expectedMaterialCost = new BigDecimal("1251.45");
         BigDecimal expectedLaborCost = new BigDecimal("1154.25");

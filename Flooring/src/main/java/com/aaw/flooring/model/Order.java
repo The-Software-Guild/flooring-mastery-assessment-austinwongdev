@@ -9,6 +9,7 @@ package com.aaw.flooring.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 /**
@@ -190,5 +191,28 @@ public class Order {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        String header = "Order " + orderNumber;
+        String taxLine = "Tax: $" + tax;
+        return header + 
+               "\n" + "-".repeat(header.length()) +
+               "\nDate: " + orderDate.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")) + 
+               "\nCustomer Name: " + customerName + 
+               "\nState: " + stateTax.getStateName() + " (" + stateTax.getStateAbbreviation() + ")" + 
+               "\nState Tax: " + stateTax.getTaxRate() + "%" + 
+               "\nProduct: " + product.getProductType() +
+               "\nProduct Cost: $" + product.getCostPerSquareFoot() + "/ft²" +
+               "\nProduct Labor Cost: $" + product.getLaborCostPerSquareFoot() + "/ft²" +  
+               "\nArea: " + area + " ft²" + 
+               "\nMaterial Cost: $" + materialCost + 
+               "\nLabor Cost: $" + laborCost + 
+               "\n" + taxLine +
+               "\n" + "-".repeat(taxLine.length()) + 
+               "\nTotal: $" + total;
+    }
+    
+    
     
 }

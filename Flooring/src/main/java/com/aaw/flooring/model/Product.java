@@ -72,6 +72,11 @@ public class Product {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return productType + " (Cost: $" + costPerSquareFoot + "/ft², Labor: $" + laborCostPerSquareFoot + "/ft²)";
+    }
     
     
     

@@ -18,8 +18,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -67,11 +65,15 @@ public class FlooringServiceLayerImpl implements FlooringServiceLayer {
      */
     @Override
     public Order getOrder(int orderNumber, LocalDate orderDate) throws OrderNotFoundException {
-        return orderDao.getOrder(orderNumber, orderDate);
+        Order order = orderDao.getOrder(orderNumber, orderDate);
+        if (order == null){
+            throw new OrderNotFoundException("Could not find order");
+        }
+        return order;
     }
 
     /**
-     * Creates a new Order object, calculates its costs, adds object to memory, 
+     * Creates a new Order object, calculates its costs, 
      * and returns newly created Order object.
      * @param orderDate - LocalDate representing order fulfillment date
      * @param customerName - String of customer's name
@@ -82,10 +84,20 @@ public class FlooringServiceLayerImpl implements FlooringServiceLayer {
      */
     @Override
     public Order createOrder(LocalDate orderDate, String customerName, StateTax stateTax, Product product, BigDecimal area) {
+        area = area.setScale(2, RoundingMode.HALF_UP);
         Order newOrder = orderDao.createOrder(orderDate, customerName, stateTax, product, area);
         calculateOrder(newOrder);
-        orderDao.addOrder(newOrder);
         return newOrder;
+    }
+    
+    /**
+     * Adds order to memory.
+     * @param order - Order object
+     * @return - Order object of added order
+     */
+    @Override
+    public Order addOrder(Order order){
+        return orderDao.addOrder(order);
     }
 
     /**
@@ -194,4 +206,46 @@ public class FlooringServiceLayerImpl implements FlooringServiceLayer {
         stateTaxDao.loadStateTaxes();
     }
 
+    /**
+     * Returns a Product object given a product name
+     * @param productType - String of product name
+     * @return - Product object
+     */
+    @Override
+    public Product getProduct(String productType) {
+        return productDao.getProduct(productType);
+    }
+
+    /**
+     * Returns a StateTax object given a state abbreviation
+     * @param stateAbbreviation - String of state abbreviation
+     * @return - StateTax object
+     */
+    @Override
+    public StateTax getStateTax(String stateAbbreviation) {
+        return stateTaxDao.getStateTax(stateAbbreviation);
+    }
+    
+    /**
+     * Returns minimum flooring area required for orders
+     * @return - BigDecimal of minimum flooring area in square feet
+     */
+    @Override
+    public BigDecimal getMinimumArea(){
+        return new BigDecimal("100.00");
+    }
+
+    /**
+     * Determines whether a String is a valid customer name defined by the 
+     * following rules: May not be blank and may contain alphanumeric characters,
+     * periods, and commas.
+     * @return - True if valid, False if invalid
+     */
+    @Override
+    public boolean isValidCustomerName(String customerName){
+        if (customerName.isBlank() || customerName.isEmpty()){
+            return false;
+        }
+        return customerName.matches("^[a-zA-Z0-9,. ]+$");
+    }
 }

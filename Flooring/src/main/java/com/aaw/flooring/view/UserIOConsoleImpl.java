@@ -11,7 +11,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 
 /**
  *
@@ -115,6 +117,36 @@ public class UserIOConsoleImpl implements UserIO {
         } while (num.compareTo(min) < 0);
         return num;
     }
+    
+    /**
+     * Takes in a message to display on the console and continually prompts the
+     * user with that message until the user inputs a BigDecimal greater than
+     * or equal to min or the user inputs an empty string
+     * @param prompt - String to display to user
+     * @param min - minimum acceptable value for return
+     * @return - BigDecimal response to the prompt greater than or equal to min
+     * or null if empty response
+     */
+    @Override
+    public BigDecimal readBigDecimalOrEmpty(String prompt, BigDecimal min){
+        BigDecimal num;
+        while (true){
+            try{
+                String stringValue = this.readString(prompt);
+                if (stringValue.isEmpty()){
+                    return null;
+                }
+                num = new BigDecimal(stringValue);
+                if (num.compareTo(min) >= 0){
+                    break;
+                }
+            }
+            catch (NumberFormatException ex){
+                this.print("Input error. Please try again.\n");
+            }
+        }
+        return num;
+    }
 
     /**
      * Takes in a message to display on the console and prompts the user with
@@ -182,4 +214,19 @@ public class UserIOConsoleImpl implements UserIO {
         this.print("");
     }
 
+    /**
+     * Takes in a message to display on the console and prompts the user with
+     * that message until the user responds with case-sensitive Y or N
+     * @param prompt - String to display to user
+     * @return - Boolean of response to prompt
+     */
+    @Override
+    public boolean readYesOrNo(String prompt){
+        String answer;
+        do{
+            answer = readString(prompt);
+        } while(!answer.equals("Y") && !answer.equals("N"));
+        
+        return answer.equals("Y");
+    }
 }

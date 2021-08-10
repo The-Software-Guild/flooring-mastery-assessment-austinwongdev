@@ -21,9 +21,11 @@ public interface UserIO {
     int readInt(String prompt, int min, int max);
     BigDecimal readBigDecimal(String prompt);
     BigDecimal readBigDecimal(String prompt, BigDecimal min);
+    BigDecimal readBigDecimalOrEmpty(String prompt, BigDecimal min);
     LocalDate readDate(String prompt);
-    LocalDate readDate(String prompt, LocalDate min);
+    LocalDate readDate(String prompt, LocalDate dayBeforeMin);
     void print(String message);
     void printWithBanner(String message);
     void pressEnterToContinue();
+    boolean readYesOrNo(String prompt);
 }
